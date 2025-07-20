@@ -1,51 +1,53 @@
+// ✅ lib/presentation/auth/code_verification/bloc/code_verification_bloc.dart
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'code_verification_event.dart';
 import 'code_verification_state.dart';
+import '../../../../data/api/auth_api_service.dart';
 
 class CodeVerificationBloc
     extends Bloc<CodeVerificationEvent, CodeVerificationState> {
-  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+  final AuthApiService authApiService;
+  final String phoneNumber;
+  final FlutterSecureStorage secureStorage = const FlutterSecureStorage();
 
-  CodeVerificationBloc() : super(CodeVerificationState.initial()) {
+  CodeVerificationBloc({
+    required this.authApiService,
+    required this.phoneNumber,
+  }) : super(CodeVerificationState.initial()) {
     on<CodeChanged>((event, emit) {
       emit(state.copyWith(code: event.code, errorMessage: null));
     });
 
     on<SubmitCode>((event, emit) async {
       emit(state.copyWith(isSubmitting: true, errorMessage: null));
-
       try {
-        final credential = PhoneAuthProvider.credential(
-          verificationId: event.verificationId,
-          smsCode: event.smsCode,
+        final result = await authApiService.confirmCode(
+          phoneNumber,
+          event.smsCode,
         );
+        final token = result['token'];
 
-        await _firebaseAuth.signInWithCredential(credential);
+        print("🟢 Token from server: $token");
+        await secureStorage.write(key: 'auth_token', value: token);
+        print("🔥 TOKEN FOR POSTMAN: $token");
 
-        if (emit.isDone) return;
-        emit(state.copyWith(isSubmitting: false, isSuccess: true));
-      } on FirebaseAuthException catch (_) {
-        if (emit.isDone) return;
+        final reRead = await secureStorage.read(key: 'auth_token');
+        print("🔁 Token re-read after saving: $reRead");
+
+        // ✅❌ لا ترسل sendRegisterRequest() هنا
+
         emit(
           state.copyWith(
             isSubmitting: false,
-            errorMessage: 'كود غير صحيح أو منتهي الصلاحية',
+            isSuccess: true,
+            userStatus: result['userStatus'] ?? '',
           ),
         );
-      } catch (_) {
-        if (emit.isDone) return;
-        emit(
-          state.copyWith(
-            isSubmitting: false,
-            errorMessage: 'حدث خطأ أثناء التحقق',
-          ),
-        );
+      } catch (e) {
+        print("❌ Error during code verification: $e");
+        emit(state.copyWith(isSubmitting: false, errorMessage: e.toString()));
       }
-    });
-
-    on<ResendCode>((event, emit) async {
-      // تقدر تضيف منطق إعادة إرسال الكود لاحقًا
     });
   }
 }

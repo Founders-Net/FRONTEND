@@ -2,7 +2,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_founders/presentation/auth/phone_input/bloc/phone_input_bloc.dart';
-import 'package:flutter_founders/presentation/main_navigation_page.dart';
+import 'package:flutter_founders/presentation/auth/splash/splash_screen.dart';
+import 'package:flutter_founders/data/api/auth_api_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,14 +17,16 @@ class FoundersApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
-      providers: [BlocProvider(create: (_) => PhoneInputBloc())],
+      providers: [
+        BlocProvider(create: (_) => PhoneInputBloc(AuthApiService())),
+      ],
       child: MaterialApp(
         title: 'Founders App',
         debugShowCheckedModeBanner: false,
         theme: ThemeData.dark(
           useMaterial3: true,
         ).copyWith(scaffoldBackgroundColor: Colors.black),
-        home: const MainNavigationPage(),
+        home: const SplashScreen(),
       ),
     );
   }

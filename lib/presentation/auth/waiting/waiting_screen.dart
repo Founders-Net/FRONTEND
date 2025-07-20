@@ -1,6 +1,8 @@
 // lib/presentation/auth/waiting/waiting_screen.dart
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_founders/data/api/auth_api_service.dart';
+import 'package:flutter_founders/presentation/main_navigation_page.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 
@@ -12,25 +14,68 @@ class WaitingScreen extends StatefulWidget {
 }
 
 class _WaitingScreenState extends State<WaitingScreen> {
-  static const int totalSeconds = 600; // 10 minutes
+  final AuthApiService authApiService = AuthApiService();
+  static const int totalSeconds = 600;
   late int remainingSeconds;
   Timer? _timer;
+  bool registerSent = false;
 
   @override
   void initState() {
     super.initState();
     remainingSeconds = totalSeconds;
-    _startCountdown();
+    _sendRegisterRequestOnce();
+    _startPolling();
   }
 
-  void _startCountdown() {
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (remainingSeconds == 0) {
+  Future<void> _sendRegisterRequestOnce() async {
+    try {
+      await authApiService.sendRegisterRequest();
+      print("📬 Register request sent successfully");
+      registerSent = true;
+    } catch (e) {
+      print("❌ Failed to send register request: $e");
+    }
+  }
+
+  void _startPolling() {
+    _timer = Timer.periodic(const Duration(seconds: 5), (timer) async {
+      try {
+        final result = await authApiService.checkRegisterStatus();
+        final status = result['registerStatus'];
+        print("🟡 Current registerStatus: $status");
+
+        if (status == 'accepted') {
+          timer.cancel();
+          if (mounted) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (_) => const MainNavigationPage()),
+            );
+          }
+        }
+      } catch (e) {
+        print("🔴 Error checking register status: $e");
+        if (mounted && remainingSeconds <= 0) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("Something went wrong. Please try again later."),
+            ),
+          );
+        }
+      }
+
+      if (remainingSeconds <= 0) {
         timer.cancel();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              "Your request is still under review. Please try again later.",
+            ),
+          ),
+        );
       } else {
-        setState(() {
-          remainingSeconds--;
-        });
+        setState(() => remainingSeconds--);
       }
     });
   }

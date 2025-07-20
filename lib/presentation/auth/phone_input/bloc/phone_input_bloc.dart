@@ -1,10 +1,12 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_founders/data/api/auth_api_service.dart';
 import 'phone_input_event.dart';
 import 'phone_input_state.dart';
 
 class PhoneInputBloc extends Bloc<PhoneInputEvent, PhoneInputState> {
-  PhoneInputBloc() : super(PhoneInputInitial()) {
+  final AuthApiService authApiService;
+
+  PhoneInputBloc(this.authApiService) : super(PhoneInputInitial()) {
     on<PhoneNumberChanged>((event, emit) {
       emit(PhoneInputInitial());
     });
@@ -17,41 +19,12 @@ class PhoneInputBloc extends Bloc<PhoneInputEvent, PhoneInputState> {
         return;
       }
 
-      await FirebaseAuth.instance.verifyPhoneNumber(
-        phoneNumber: phone,
-        verificationCompleted: (PhoneAuthCredential credential) {
-          // ممكن تضيف تسجيل دخول تلقائي هنا لو حبيت
-        },
-        verificationFailed: (FirebaseAuthException e) {
-          Future.microtask(() {
-            add(
-              PhoneNumberVerificationFailed(
-                e.message ?? "فشل في إرسال الكود",
-              ),
-            );
-          });
-        },
-        codeSent: (String verificationId, int? resendToken) {
-          Future.microtask(() {
-            add(
-              PhoneNumberCodeSent(
-                phone,
-                verificationId,
-              ),
-            );
-          });
-        },
-        codeAutoRetrievalTimeout: (String verificationId) {},
-      );
-    });
-
-    // لمعالجة الأحداث الداخلية بعد codeSent أو failure
-    on<PhoneNumberVerificationFailed>((event, emit) {
-      emit(PhoneInputFailure(event.message));
-    });
-
-    on<PhoneNumberCodeSent>((event, emit) {
-      emit(PhoneSubmitSuccess(event.phoneNumber, event.verificationId));
+      try {
+        await authApiService.sendPhoneRequest(phone);
+        emit(PhoneSubmitSuccess(phone, 'dummy-verification-id'));
+      } catch (e) {
+        emit(PhoneInputFailure(e.toString()));
+      }
     });
   }
 }

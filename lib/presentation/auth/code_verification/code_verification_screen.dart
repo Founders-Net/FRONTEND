@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_founders/presentation/auth/waiting/waiting_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'widgets/resend_code_button.dart';
 import 'bloc/code_verification_bloc.dart';
 import 'bloc/code_verification_event.dart';
 import 'bloc/code_verification_state.dart';
-import '../waiting/waiting_screen.dart';
+import '../../../../data/api/auth_api_service.dart';
 
 class CodeVerificationScreen extends StatelessWidget {
   final String phoneNumber;
@@ -20,7 +21,10 @@ class CodeVerificationScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => CodeVerificationBloc(),
+      create: (_) => CodeVerificationBloc(
+        authApiService: AuthApiService(),
+        phoneNumber: phoneNumber,
+      ),
       child: Scaffold(
         backgroundColor: Colors.black,
         body: SafeArea(

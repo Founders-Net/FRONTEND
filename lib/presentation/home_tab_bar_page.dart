@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_founders/presentation/investment/investment_page.dart';
-import 'package:flutter_founders/presentation/requests/requsets_page.dart';
-import 'package:flutter_founders/presentation/requests/create_request/create_request_page.dart';
-import 'package:flutter_founders/presentation/investment/create_investment/create_investment_page.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_founders/presentation/investment/investment_page.dart';
+import 'package:flutter_founders/presentation/posts/posts_page.dart';
+import 'package:flutter_founders/presentation/posts/create_posts/create_posts_page.dart';
+import 'package:flutter_founders/presentation/investment/create_investment/create_investment_page.dart';
 import 'package:flutter_founders/presentation/investment/create_investment/bloc/create_investment_bloc.dart';
+import 'package:flutter_founders/presentation/posts/bloc/posts_bloc.dart';
+import 'package:flutter_founders/presentation/posts/bloc/posts_event.dart';
 import 'package:flutter_founders/presentation/shared_widgets/shared_app_bar.dart';
 
 class HomeTabBarPage extends StatelessWidget {
@@ -30,13 +32,16 @@ class HomeTabBarPage extends StatelessWidget {
           return Column(
             children: [
               SharedAppBar(
-                onCreatePressed: () {
+                onCreatePressed: () async {
                   final tabIndex = tabIndexNotifier.value;
                   if (tabIndex == 0) {
-                    Navigator.push(
+                    final result = await Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => const CreateRequestPage()),
+                      MaterialPageRoute(builder: (_) => const CreatePostPage()),
                     );
+                    if (result == 'refresh') {
+                      context.read<PostsBloc>().add(const LoadPostsEvent());
+                    }
                   } else {
                     Navigator.push(
                       context,
@@ -57,7 +62,10 @@ class HomeTabBarPage extends StatelessWidget {
                 ),
                 labelColor: Colors.white,
                 unselectedLabelColor: Colors.grey,
-                labelStyle: TextStyle(fontWeight: FontWeight.w600, fontFamily: 'InriaSans',),
+                labelStyle: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontFamily: 'InriaSans',
+                ),
                 tabs: [
                   Tab(text: 'Запросы'),
                   Tab(text: 'Инвестиции'),
@@ -86,9 +94,13 @@ class HomeTabBarPage extends StatelessWidget {
                                   hintText: 'Поиск',
                                   border: InputBorder.none,
                                   hintStyle: TextStyle(
-                                      color: Color.fromARGB(255, 236, 229, 229)),
+                                    color: Color.fromARGB(255, 236, 229, 229),
+                                  ),
                                 ),
-                                style: TextStyle(color: Colors.white, fontFamily: 'InriaSans'),
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontFamily: 'InriaSans',
+                                ),
                               ),
                             ),
                           ],
@@ -97,8 +109,10 @@ class HomeTabBarPage extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     IconButton(
-                      icon: const Icon(Icons.tune,
-                          color: Color.fromARGB(255, 236, 229, 229)),
+                      icon: const Icon(
+                        Icons.tune,
+                        color: Color.fromARGB(255, 236, 229, 229),
+                      ),
                       onPressed: () {},
                     ),
                   ],
@@ -108,10 +122,7 @@ class HomeTabBarPage extends StatelessWidget {
               const Expanded(
                 child: TabBarView(
                   physics: NeverScrollableScrollPhysics(),
-                  children: [
-                    RequestsPage(),
-                    InvestmentPage(),
-                  ],
+                  children: [PostsPage(), InvestmentPage()],
                 ),
               ),
             ],
