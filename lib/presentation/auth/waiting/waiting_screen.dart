@@ -19,6 +19,7 @@ class _WaitingScreenState extends State<WaitingScreen> {
   late int remainingSeconds;
   Timer? _timer;
   bool registerSent = false;
+  int tick = 0;
 
   @override
   void initState() {
@@ -39,32 +40,7 @@ class _WaitingScreenState extends State<WaitingScreen> {
   }
 
   void _startPolling() {
-    _timer = Timer.periodic(const Duration(seconds: 5), (timer) async {
-      try {
-        final result = await authApiService.checkRegisterStatus();
-        final status = result['registerStatus'];
-        print("🟡 Current registerStatus: $status");
-
-        if (status == 'accepted') {
-          timer.cancel();
-          if (mounted) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (_) => const MainNavigationPage()),
-            );
-          }
-        }
-      } catch (e) {
-        print("🔴 Error checking register status: $e");
-        if (mounted && remainingSeconds <= 0) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text("Something went wrong. Please try again later."),
-            ),
-          );
-        }
-      }
-
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) async {
       if (remainingSeconds <= 0) {
         timer.cancel();
         ScaffoldMessenger.of(context).showSnackBar(
@@ -74,9 +50,34 @@ class _WaitingScreenState extends State<WaitingScreen> {
             ),
           ),
         );
-      } else {
-        setState(() => remainingSeconds--);
+        return;
       }
+
+      // Check status every 5 seconds
+      if (tick % 5 == 0) {
+        try {
+          final result = await authApiService.checkRegisterStatus();
+          final status = result['registerStatus'];
+          print("🟡 Current registerStatus: $status");
+
+          if (status == 'accepted') {
+            timer.cancel();
+            if (mounted) {
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(builder: (_) => const MainNavigationPage()),
+                (route) => false,
+              );
+            }
+          }
+        } catch (e) {
+          print("🔴 Error checking register status: $e");
+        }
+      }
+
+      setState(() {
+        remainingSeconds--;
+        tick++;
+      });
     });
   }
 
