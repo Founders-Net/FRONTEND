@@ -1,13 +1,22 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_founders/data/api/dio_client.dart';
 import 'package:flutter_founders/models/investment_model.dart';
-import 'package:flutter/foundation.dart'; // for debugPrint
+import 'package:flutter/foundation.dart'; 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-
 class InvestmentApiService {
-  final Dio _dio = DioClient().dio;
+  final Dio _dio = DioClient().dio; // Assuming DioClient is set up correctly for Dio
+  final _storage = const FlutterSecureStorage();
 
+  Future<String> _getToken() async {
+    final token = await _storage.read(key: 'auth_token');
+    if (token == null || token.isEmpty) {
+      throw Exception('No auth token found');
+    }
+    return 'Bearer $token';
+  }
+
+  // Fetch Investments
   Future<List<InvestmentModel>> getInvestments({
     int cursor = 0,
     int limit = 10,
@@ -41,6 +50,7 @@ class InvestmentApiService {
     }
   }
 
+  // Get Investment by ID
   Future<InvestmentModel> getInvestmentById(int id) async {
     try {
       final response = await _dio.get('/investments/$id');
@@ -52,6 +62,7 @@ class InvestmentApiService {
     }
   }
 
+  // Create Investment
   Future<Response> createInvestment({
     required String title,
     required String description,
@@ -89,6 +100,7 @@ class InvestmentApiService {
     }
   }
 
+  // Update Investment
   Future<void> updateInvestment({
     required int id,
     required String title,
@@ -117,6 +129,7 @@ class InvestmentApiService {
     }
   }
 
+  // Upload Investment Media (Business Plan, Financial Model, etc.)
   Future<Map<String, dynamic>> uploadInvestmentMedia(int id) async {
     try {
       final response = await _dio.put('/investments/media/$id');
@@ -128,16 +141,7 @@ class InvestmentApiService {
     }
   }
 
-  final _storage = const FlutterSecureStorage();
-
-  Future<String> _getToken() async {
-  final token = await _storage.read(key: 'auth_token');
-  if (token == null || token.isEmpty) {
-    throw Exception('No auth token found');
-  }
-  return 'Bearer $token';
-  }
-
+  // Delete Investment
   Future<void> deleteInvestment(int id) async {
     try {
       final response = await _dio.delete('/investments/$id');
@@ -148,17 +152,41 @@ class InvestmentApiService {
     }
   }
 
-  Future<void> likeInvestment(int investmentId) async {
+  // Like Investment
+  Future<void> likeInvestment(int postId) async {
   final token = await _getToken();
-  await _dio.post('/api/likes/$investmentId',
-    options: Options(headers: {'Authorization': token}),
-  );
+  try {
+    debugPrint('📤 Liking post with ID: $postId');
+    final response = await _dio.post(
+      '/likes/$postId', 
+      options: Options(headers: {'Authorization': token}),
+    );
+    debugPrint('✅ Post liked successfully: ${response.data}');
+  } on DioException catch (e) {
+    debugPrint('❌ Error liking post: ${e.response?.data}');
+    rethrow;
+  } catch (e) {
+    debugPrint('❌ Unknown error liking post: $e');
+    rethrow;
+  }
 }
 
-Future<void> unlikeInvestment(int investmentId) async {
+// Unlike Investment
+Future<void> unlikeInvestment(int postId) async {
   final token = await _getToken();
-  await _dio.delete('/api/likes/$investmentId',
-    options: Options(headers: {'Authorization': token}),
-  );
+  try {
+    debugPrint('📤 Unliking post with ID: $postId');
+    final response = await _dio.delete(
+      '/likes/$postId', 
+      options: Options(headers: {'Authorization': token}),
+    );
+    debugPrint('✅ Post unliked successfully: ${response.data}');
+  } on DioException catch (e) {
+    debugPrint('❌ Error unliking post: ${e.response?.data}');
+    rethrow;
+  } catch (e) {
+    debugPrint('❌ Unknown error unliking post: $e');
+    rethrow;
+  }
 }
 }

@@ -9,9 +9,9 @@ class LoadInvestmentDetailsEvent extends InvestmentDetailsEvent {
 }
 
 class ToggleLikeInvestmentEvent extends InvestmentDetailsEvent {
-  final int investmentId;
+  final int postId;
   final bool isLiked;
-  ToggleLikeInvestmentEvent({required this.investmentId, required this.isLiked});
+  ToggleLikeInvestmentEvent({required this.postId, required this.isLiked});
 }
 
 class SetLikedStateEvent extends InvestmentDetailsEvent {

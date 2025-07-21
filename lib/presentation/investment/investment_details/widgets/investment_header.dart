@@ -68,7 +68,7 @@ class InvestmentHeader extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            _LikeButton(investmentId: model.id),
+            _LikeButton(postId: model.id),
             const _IconButton(icon: Icons.bookmark_border),
           ],
         ),
@@ -152,9 +152,9 @@ class _IconButton extends StatelessWidget {
 }
 
 class _LikeButton extends StatelessWidget {
-  final int investmentId;
+  final int postId; 
 
-  const _LikeButton({required this.investmentId});
+  const _LikeButton({required this.postId});
 
   @override
   Widget build(BuildContext context) {
@@ -168,7 +168,7 @@ class _LikeButton extends StatelessWidget {
             onTap: () {
               context.read<InvestmentDetailsBloc>().add(
                 ToggleLikeInvestmentEvent(
-                  investmentId: investmentId,
+                  postId: postId,  
                   isLiked: isLiked,
                 ),
               );

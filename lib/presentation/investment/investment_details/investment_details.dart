@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_founders/models/investment_model.dart';
+import 'package:flutter_founders/presentation/investment/investment_details/bloc/investment_details_state.dart';
 import 'widgets/investment_header.dart';
 import 'widgets/investment_manager_info.dart';
 import 'widgets/investment_description_card.dart';
@@ -16,9 +17,13 @@ class InvestmentDetailsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('🔄 Building InvestmentDetailsPage for ID: ${investment.id}');
     return BlocProvider(
-      create: (_) => InvestmentDetailsBloc(apiService: InvestmentApiService())
-        ..add(LoadInvestmentDetailsEvent(investment)),
+      create: (_) {
+        debugPrint('🚀 Creating InvestmentDetailsBloc and loading investment...');
+        return InvestmentDetailsBloc(apiService: InvestmentApiService())
+          ..add(LoadInvestmentDetailsEvent(investment));
+      },
       child: Scaffold(
         backgroundColor: Colors.black,
         appBar: AppBar(
@@ -34,29 +39,38 @@ class InvestmentDetailsPage extends StatelessWidget {
           ),
         ),
         body: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                InvestmentHeader(model: investment),
-                const SizedBox(height: 24),
+          child: BlocBuilder<InvestmentDetailsBloc, InvestmentDetailsState>(
+            builder: (context, state) {
+              debugPrint('📦 BlocBuilder rebuild: isLoading=${state.isLoading}, isLiked=${state.isLiked}');
+              if (state.isLoading) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              final investment = state.investment!;
+              return SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    InvestmentHeader(model: investment),
+                    const SizedBox(height: 24),
 
-                InvestmentManagerInfo(
-                  name: investment.userName ?? 'Без имени',
-                  imageUrl: investment.userAvatar ?? '',
-                  tags: investment.userInfo != null
-                      ? investment.userInfo!.split(',')
-                      : [],
+                    InvestmentManagerInfo(
+                      name: investment.userName ?? 'Без имени',
+                      imageUrl: investment.userAvatar ?? '',
+                      tags: investment.userInfo != null
+                          ? investment.userInfo!.split(',')
+                          : [],
+                    ),
+                    const SizedBox(height: 24),
+
+                    InvestmentDescriptionCard(description: investment.description),
+                    const SizedBox(height: 24),
+                    const SizedBox(height: 32),
+                    const InvestmentActionButtonsRow(),
+                  ],
                 ),
-                const SizedBox(height: 24),
-
-                InvestmentDescriptionCard(description: investment.description),
-                const SizedBox(height: 24),
-                const SizedBox(height: 32),
-                const InvestmentActionButtonsRow(),
-              ],
-            ),
+              );
+            },
           ),
         ),
       ),

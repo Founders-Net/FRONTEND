@@ -9,7 +9,7 @@ class InvestmentDetailsState extends Equatable {
   const InvestmentDetailsState({
     required this.isLoading,
     this.investment,
-    this.isLiked = false,
+    this.isLiked = false, 
   });
 
   factory InvestmentDetailsState.initial() {
