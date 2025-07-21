@@ -72,18 +72,18 @@ class _CreateInvestmentForm extends StatelessWidget {
                 InvestmentTextField(
                   label: 'Сумма',
                   hintText: 'Введите сумму',
-                  initialValue: state.amount,
+                  initialValue: state.investmentAmount.toString(),
                   onChanged: (value) => context.read<CreateInvestmentBloc>().add(
-                        UpdateTextField(fieldKey: 'amount', value: value),
+                        UpdateTextField(fieldKey: 'investmentAmount', value: value),
                       ),
                 ),
                 const SizedBox(height: 10),
                 InvestmentTextField(
                   label: 'Срок окупаемости',
                   hintText: 'Введите срок в месяцах',
-                  initialValue: state.period,
+                  initialValue: state.paybackPeriodMonths.toString(),
                   onChanged: (value) => context.read<CreateInvestmentBloc>().add(
-                        UpdateTextField(fieldKey: 'period', value: value),
+                        UpdateTextField(fieldKey: 'paybackPeriodMonths', value: value),
                       ),
                 ),
                 const SizedBox(height: 10),
@@ -98,36 +98,36 @@ class _CreateInvestmentForm extends StatelessWidget {
                 const SizedBox(height: 10),
                 InvestmentFileUpload(
                   label: 'Бизнес-план',
-                  file: state.documents['doc1'],
+                  file: state.documents['doc1']?.path != null ? File(state.documents['doc1']!.path!) : null,
                   onUpload: () async {
                     final result = await FilePicker.platform.pickFiles();
                     if (result != null && result.files.single.path != null) {
-                      final file = File(result.files.single.path!);
-                      context.read<CreateInvestmentBloc>().add(UploadFile(type: 'doc1', file: file));
+                      final platformFile = result.files.single;
+                      context.read<CreateInvestmentBloc>().add(UpdateDocument(key: 'doc1', file: platformFile));
                     }
                   },
                 ),
                 const SizedBox(height: 10),
                 InvestmentFileUpload(
                   label: 'Финансовая модель',
-                  file: state.documents['doc2'],
+                  file: state.documents['doc2']?.path != null ? File(state.documents['doc2']!.path!) : null,
                   onUpload: () async {
                     final result = await FilePicker.platform.pickFiles();
                     if (result != null && result.files.single.path != null) {
-                      final file = File(result.files.single.path!);
-                      context.read<CreateInvestmentBloc>().add(UploadFile(type: 'doc2', file: file));
+                      final platformFile = result.files.single;
+                      context.read<CreateInvestmentBloc>().add(UpdateDocument(key: 'doc2', file: platformFile));
                     }
                   },
                 ),
                 const SizedBox(height: 10),
                 InvestmentFileUpload(
                   label: 'Презентация',
-                  file: state.documents['doc3'],
+                  file: state.documents['doc3']?.path != null ? File(state.documents['doc3']!.path!) : null,
                   onUpload: () async {
                     final result = await FilePicker.platform.pickFiles();
                     if (result != null && result.files.single.path != null) {
-                      final file = File(result.files.single.path!);
-                      context.read<CreateInvestmentBloc>().add(UploadFile(type: 'doc3', file: file));
+                      final platformFile = result.files.single;
+                      context.read<CreateInvestmentBloc>().add(UpdateDocument(key: 'doc3', file: platformFile));
                     }
                   },
                 ),

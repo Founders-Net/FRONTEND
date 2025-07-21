@@ -1,4 +1,3 @@
-// lib/models/investment_model.dart
 class InvestmentModel {
   final int id;
   final int userId;
@@ -38,25 +37,25 @@ class InvestmentModel {
     required this.createdAt,
   });
 
-  factory InvestmentModel.fromJson(Map<String, dynamic> json) {
-    return InvestmentModel(
-      id: json['id'],
-      userId: json['userId'],
-      userName: json['userName'],
-      userAvatar: json['userAvatar'],
-      userInfo: json['userInfo'],
-      title: json['title'],
-      description: json['description'],
-      investmentAmount: json['investmentAmount'],
-      paybackPeriodMonths: json['paybackPeriodMonths'],
-      country: json['country'],
-      businessPlanUrl: json['businessPlanUrl'],
-      financialModelUrl: json['financialModelUrl'],
-      presentationUrl: json['presentationUrl'],
-      status: json['status'],
-      likesCount: json['likesCount'],
-      commentsCount: json['commentsCount'],
-      createdAt: json['createdAt'],
-    );
-  }
+factory InvestmentModel.fromJson(Map<String, dynamic> json) {
+  return InvestmentModel(
+    id: json['id'] as int,
+    userId: json['userId'] as int,
+    userName: json['userName'],
+    userAvatar: json['userAvatar'],
+    userInfo: json['userInfo'],
+    title: json['title'] ?? '',
+    description: json['description'] ?? '',
+    investmentAmount: num.tryParse(json['investmentAmount'].toString())?.toInt() ?? 0,
+    paybackPeriodMonths: num.tryParse(json['paybackPeriodMonths'].toString())?.toInt() ?? 0,
+    country: json['country'] ?? '',
+    businessPlanUrl: json['businessPlanUrl'] ?? '',
+    financialModelUrl: json['financialModelUrl'] ?? '',
+    presentationUrl: json['presentationUrl'] ?? '',
+    status: json['status'] ?? '',
+    likesCount: json['likesCount'] != null ? int.tryParse(json['likesCount'].toString()) : null,
+    commentsCount: json['commentsCount'] != null ? int.tryParse(json['commentsCount'].toString()) : null,
+    createdAt: json['createdAt'] ?? '',
+  );
+}
 }

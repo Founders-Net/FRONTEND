@@ -1,23 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_founders/models/investment_model.dart';
+import 'package:flutter_founders/presentation/investment/investment_details/investment_details.dart';
+import 'package:flutter_founders/presentation/investment/models/details_investment_model.dart';
 
 class InvestmentCard extends StatelessWidget {
-  final String title;
-  final String amount;
-  final String period;
-  final String location;
-  final String tag;
-  final Color tagColor;
-  final VoidCallback onTap;
+  final InvestmentModel investment;
 
   const InvestmentCard({
     super.key,
-    required this.title,
-    required this.amount,
-    required this.period,
-    required this.location,
-    required this.tag,
-    required this.tagColor,
-    required this.onTap,
+    required this.investment,
   });
 
   @override
@@ -25,13 +16,34 @@ class InvestmentCard extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: InkWell(
-        onTap: onTap,
+        onTap: () {
+          final detailsModel = DetailsInvestmentModel(
+            title: investment.title,
+            amount: '${investment.investmentAmount.toStringAsFixed(0)} ₽',
+            period: '${investment.paybackPeriodMonths} мес.',
+            location: investment.country,
+            description: investment.description,
+            businessPlanUrl: investment.businessPlanUrl,
+            financialModelUrl: investment.financialModelUrl,
+            presentationUrl: investment.presentationUrl,
+        
+            managerName: investment.userName ?? 'Без имени',
+            managerImage: investment.userAvatar ?? '',
+            managerTags: investment.userInfo?.split(',') ?? [],
+          );
+
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => InvestmentDetailsPage(investment: detailsModel),
+            ),
+          );
+        },
         borderRadius: BorderRadius.circular(16),
         child: Container(
-          width: 50,
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: const Color(0xFF2C2C2E), 
+            color: const Color(0xFF2C2C2E),
             borderRadius: BorderRadius.circular(16),
           ),
           child: Column(
@@ -39,55 +51,104 @@ class InvestmentCard extends StatelessWidget {
             children: [
               // Title
               Text(
-                title,
+                investment.title,
                 style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
                   fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
                   fontFamily: 'InriaSans',
                 ),
               ),
               const SizedBox(height: 12),
 
               // Info rows
-              _buildInfoRow('Объём привлекаемых средств', amount),
-              _buildInfoRow('Срок окупаемости', period),
-              _buildInfoRow('Страна реализации', location),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Объём привлекаемых средств',
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontFamily: 'InriaSans',
+                      fontSize: 14,
+                    ),
+                  ),
+                  Text(
+                    '${investment.investmentAmount.toStringAsFixed(0)} ₽',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontFamily: 'InriaSans',
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Срок окупаемости',
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontFamily: 'InriaSans',
+                      fontSize: 14,
+                    ),
+                  ),
+                  Text(
+                    '${investment.paybackPeriodMonths} месяцев',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontFamily: 'InriaSans',
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Страна реализации',
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontFamily: 'InriaSans',
+                      fontSize: 14,
+                    ),
+                  ),
+                  Text(
+                    investment.country,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontFamily: 'InriaSans',
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
 
               const SizedBox(height: 12),
 
-              // Tag Button
+              // Status tag
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: tagColor,
-                  borderRadius: BorderRadius.circular(12),
+                  color: investment.status == 'approved' ? Colors.green : Colors.orange,
+                  borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                  tag,
+                  investment.status,
                   style: const TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
                     fontSize: 12,
+                    fontFamily: 'InriaSans',
                   ),
                 ),
               ),
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildInfoRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(label, style: const TextStyle(color: Colors.white60, fontSize: 13, fontFamily: 'InriaSans',)),
-          Text(value, style: const TextStyle(color: Colors.white, fontSize: 13, fontFamily: 'InriaSans',)),
-        ],
       ),
     );
   }

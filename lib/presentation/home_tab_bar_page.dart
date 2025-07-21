@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_founders/data/api/investment_api_service.dart';
 import 'package:flutter_founders/presentation/investment/investment_page.dart';
 import 'package:flutter_founders/presentation/posts/posts_page.dart';
 import 'package:flutter_founders/presentation/posts/create_posts/create_posts_page.dart';
@@ -47,7 +48,8 @@ class HomeTabBarPage extends StatelessWidget {
                       context,
                       MaterialPageRoute(
                         builder: (_) => BlocProvider(
-                          create: (_) => CreateInvestmentBloc(),
+                          create: (_) => CreateInvestmentBloc(  investmentApiService: InvestmentApiService(),
+),
                           child: const CreateInvestmentPage(),
                         ),
                       ),
@@ -118,11 +120,24 @@ class HomeTabBarPage extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(height: 12),
               const Expanded(
                 child: TabBarView(
                   physics: NeverScrollableScrollPhysics(),
-                  children: [PostsPage(), InvestmentPage()],
+                  children: [
+                    Column(
+                      children: [
+                        SizedBox(height: 12), 
+                        Expanded(child: PostsPage()),
+                      ],
+                    ),
+
+                    Column(
+                      children: [
+                        SizedBox(height: 12), 
+                        Expanded(child: InvestmentPage()),
+                      ],
+                    ),
+                  ],
                 ),
               ),
             ],

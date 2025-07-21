@@ -21,7 +21,6 @@ class InvestmentHeader extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 20),
-
         Container(
           width: double.infinity,
           padding: const EdgeInsets.all(16),
@@ -38,18 +37,30 @@ class InvestmentHeader extends StatelessWidget {
               const SizedBox(height: 14),
               _InfoRow(label: 'Страна реализации', value: model.location),
               const SizedBox(height: 14),
-
-              _FileBlock(label: 'Бизнес-план', fileName: model.files.isNotEmpty ? model.files[0] : '—'),
+              _FileBlock(
+                label: 'Бизнес-план',
+                fileName: (model.businessPlanUrl != null && model.businessPlanUrl!.isNotEmpty)
+                    ? 'Документ загружен'
+                    : 'Документ отсутствует',
+              ),
               const SizedBox(height: 14),
-              _FileBlock(label: 'Финансовая модель', fileName: model.files.length > 1 ? model.files[1] : '—'),
+              _FileBlock(
+                label: 'Финансовая модель',
+                fileName: (model.financialModelUrl != null && model.financialModelUrl!.isNotEmpty)
+                    ? 'Документ загружен'
+                    : 'Документ отсутствует',
+              ),
               const SizedBox(height: 14),
-              _FileBlock(label: 'Презентация', fileName: model.files.length > 2 ? model.files[2] : '—'),
+              _FileBlock(
+                label: 'Презентация',
+                fileName: (model.presentationUrl != null && model.presentationUrl!.isNotEmpty)
+                    ? 'Документ загружен'
+                    : 'Документ отсутствует',
+              ),
             ],
           ),
         ),
-
         const SizedBox(height: 12),
-
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: const [
@@ -92,7 +103,7 @@ class _FileBlock extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(color: Colors.white, fontSize: 13, fontFamily: 'InriaSans',)),
+        Text(label, style: const TextStyle(color: Colors.white, fontSize: 13, fontFamily: 'InriaSans')),
         const SizedBox(height: 6),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -118,7 +129,7 @@ class _IconButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4), 
+      padding: const EdgeInsets.symmetric(horizontal: 4),
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
         onTap: () {
@@ -137,4 +148,3 @@ class _IconButton extends StatelessWidget {
     );
   }
 }
-

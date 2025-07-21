@@ -14,7 +14,7 @@ class DioClient {
           final token = await storage.read(key: 'auth_token');
 
           if (token != null) {
-            options.headers['Authorization'] = ' $token';
+            options.headers['Authorization'] = token;
             options.headers['Content-Type'] = 'application/json';
           }
 

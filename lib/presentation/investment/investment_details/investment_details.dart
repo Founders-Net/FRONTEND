@@ -43,8 +43,8 @@ class InvestmentDetailsPage extends StatelessWidget {
               const SizedBox(height: 24),
 
               InvestmentDescriptionCard(description: investment.description),
+              const SizedBox(height: 24),
               const SizedBox(height: 32),
-
               const InvestmentActionButtonsRow(),
             ],
           ),

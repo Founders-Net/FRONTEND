@@ -9,6 +9,7 @@ import 'package:flutter_founders/presentation/posts/bloc/posts_event.dart';
 import 'package:flutter_founders/presentation/search/search_page.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_founders/data/api/posts_api_service.dart';
+import 'package:flutter_founders/data/api/investment_api_service.dart';
 import 'home_tab_bar_page.dart';
 
 class MainNavigationPage extends StatefulWidget {
@@ -43,7 +44,6 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
       builder: (context, snapshot) {
         final token = snapshot.data;
 
-        // لو التوكن لسه ما اتحملش
         if (snapshot.connectionState != ConnectionState.done) {
           return const Scaffold(
             backgroundColor: Colors.black,
@@ -54,7 +54,9 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
         return MultiBlocProvider(
           providers: [
             BlocProvider(
-              create: (_) => InvestmentBloc()..add(LoadInvestmentsEvent()),
+              create: (_) =>
+                  InvestmentBloc(investmentApiService: InvestmentApiService())
+                    ..add(const LoadInvestments()),
             ),
             BlocProvider(
               create: (_) =>

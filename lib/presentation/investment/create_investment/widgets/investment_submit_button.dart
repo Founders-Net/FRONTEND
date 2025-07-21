@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_founders/presentation/investment/create_investment/bloc/create_investment_bloc.dart';
-import 'package:flutter_founders/presentation/investment/create_investment/bloc/create_investment_event.dart';
-import 'package:flutter_founders/presentation/investment/create_investment/bloc/create_investment_state.dart';
-import 'package:flutter_founders/presentation/investment/models/investment_model.dart';
+import '../bloc/create_investment_bloc.dart';
+import '../bloc/create_investment_state.dart';
+import '../bloc/create_investment_event.dart';
 
 class InvestmentSubmitButton extends StatelessWidget {
   const InvestmentSubmitButton({super.key});
@@ -12,41 +11,24 @@ class InvestmentSubmitButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocConsumer<CreateInvestmentBloc, CreateInvestmentState>(
       listener: (context, state) {
-        if (state.isSuccess) {
-          // Create InvestmentModel from user input
-          final newInvestment = InvestmentModel(
-            title: state.title,
-            amount: state.amount,
-            period: state.period,
-            location: state.country,
-            tag: 'Пользовательский проект',
-            tagColor: 0xFFAF925D,
-            description: state.description,
-            files: [
-              state.documents['doc1']?.path.split('/').last ?? 'Документ 1',
-              state.documents['doc2']?.path.split('/').last ?? 'Документ 2',
-              state.documents['doc3']?.path.split('/').last ?? 'Документ 3',
-            ],
-            managerName: 'Текущий пользователь',
-            managerImage: 'https://via.placeholder.com/150',
-            managerTags: ['Создатель', 'Инвестор'],
-          );
-
-          // Add to global list
-          //context.read<InvestmentBloc>().add(AddInvestmentEvent(newInvestment));
-
-          // Success feedback and navigate back
+        if (state.submissionSuccess) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Инвестиция отправлена на модерацию ✅'),
+              content: Text(
+                'Инвестиция отправлена на модерацию ✅',
+                style: TextStyle(fontFamily: 'InriaSans'),
+              ),
               backgroundColor: Colors.green,
             ),
           );
           Navigator.pop(context);
-        } else if (state.isFailure) {
+        } else if (state.submissionFailure) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Пожалуйста, заполните все поля ✏️'),
+              content: Text(
+                'Пожалуйста, заполните все поля ✏️',
+                style: TextStyle(fontFamily: 'InriaSans'),
+              ),
               backgroundColor: Colors.red,
             ),
           );
@@ -61,7 +43,7 @@ class InvestmentSubmitButton extends StatelessWidget {
             onPressed: isLoading
                 ? null
                 : () {
-                    context.read<CreateInvestmentBloc>().add(SubmitInvestment());
+                    context.read<CreateInvestmentBloc>().add(SubmitInvestmentEvent());
                   },
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFAF925D),
@@ -79,7 +61,11 @@ class InvestmentSubmitButton extends StatelessWidget {
                   )
                 : const Text(
                     'Отправить на модерацию',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, fontFamily: 'InriaSans'),
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      fontFamily: 'InriaSans',
+                    ),
                   ),
           ),
         );

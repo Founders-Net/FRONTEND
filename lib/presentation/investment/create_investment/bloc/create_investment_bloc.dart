@@ -1,87 +1,100 @@
-import 'dart:async';
-import 'dart:io';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'create_investment_event.dart';
-import 'create_investment_state.dart';
+import 'package:bloc/bloc.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter_founders/data/api/investment_api_service.dart';
+import 'package:flutter_founders/presentation/investment/create_investment/bloc/create_investment_event.dart';
+import 'package:flutter_founders/presentation/investment/create_investment/bloc/create_investment_state.dart';
 
 class CreateInvestmentBloc extends Bloc<CreateInvestmentEvent, CreateInvestmentState> {
-  CreateInvestmentBloc() : super(const CreateInvestmentState()) {
-    on<UpdateTitle>((event, emit) =>
-        emit(state.copyWith(title: event.title, isFailure: false, isSuccess: false)));
+  final InvestmentApiService investmentApiService;
 
-    on<UpdateDescription>((event, emit) =>
-        emit(state.copyWith(description: event.description, isFailure: false, isSuccess: false)));
-
-    on<UpdateAmount>((event, emit) =>
-        emit(state.copyWith(amount: event.amount, isFailure: false, isSuccess: false)));
-
-    on<UpdatePaybackPeriod>((event, emit) =>
-        emit(state.copyWith(period: event.period, isFailure: false, isSuccess: false)));
-
-    on<UpdateCountry>((event, emit) =>
-        emit(state.copyWith(country: event.country, isFailure: false, isSuccess: false)));
-
-    on<UpdateAdditional>((event, emit) =>
-        emit(state.copyWith(additional: event.additional, isFailure: false, isSuccess: false)));
-
-    on<UploadFile>(_onUploadFile);
+  CreateInvestmentBloc({required this.investmentApiService}) : super(const CreateInvestmentState()) {
+    on<SubmitInvestmentEvent>(_onSubmitInvestment);
     on<UpdateTextField>(_onUpdateTextField);
-    on<SubmitInvestment>(_onSubmit);
+    on<UpdateDocument>(_onUpdateDocument);
   }
 
-  void _onUploadFile(UploadFile event, Emitter<CreateInvestmentState> emit) {
-    final updatedDocs = Map<String, File>.from(state.documents);
-    updatedDocs[event.type] = event.file;
+  Future<void> _onSubmitInvestment(
+    SubmitInvestmentEvent event,
+    Emitter<CreateInvestmentState> emit,
+  ) async {
     emit(state.copyWith(
-      documents: updatedDocs,
-      isFailure: false,
-      isSuccess: false,
+      isSubmitting: true,
+      submissionSuccess: false,
+      submissionFailure: false,
     ));
+
+    try {
+      final response = await investmentApiService.createInvestment(
+        title: state.title,
+        description: state.description,
+        investmentAmount: int.tryParse(state.investmentAmount) ?? 0,
+        paybackPeriodMonths: int.tryParse(state.paybackPeriodMonths) ?? 0, 
+        country: state.country,
+        businessPlanUrl: state.documents['doc1']?.path ?? '',
+        financialModelUrl: state.documents['doc2']?.path ?? '',
+        presentationUrl: state.documents['doc3']?.path ?? '',
+      );
+
+      final statusMsg = response.data['statusMsg'];
+      final message = response.data['message'] ?? 'Unknown response';
+
+      if (response.statusCode == 200 && statusMsg == 'success') {
+        emit(state.copyWith(
+          isSubmitting: false,
+          submissionSuccess: true,
+          submissionFailure: false,
+        ));
+      } else {
+        emit(state.copyWith(
+          isSubmitting: false,
+          submissionSuccess: false,
+          submissionFailure: true,
+        ));
+      }
+    } catch (e) {
+      emit(state.copyWith(
+        isSubmitting: false,
+        submissionSuccess: false,
+        submissionFailure: true,
+      ));
+    }
   }
 
   void _onUpdateTextField(UpdateTextField event, Emitter<CreateInvestmentState> emit) {
     switch (event.fieldKey) {
       case 'title':
-        emit(state.copyWith(title: event.value, isFailure: false, isSuccess: false));
+        emit(state.copyWith(title: event.value));
         break;
       case 'description':
-        emit(state.copyWith(description: event.value, isFailure: false, isSuccess: false));
-        break;
-      case 'amount':
-        emit(state.copyWith(amount: event.value, isFailure: false, isSuccess: false));
-        break;
-      case 'period':
-        emit(state.copyWith(period: event.value, isFailure: false, isSuccess: false));
+        emit(state.copyWith(description: event.value));
         break;
       case 'country':
-        emit(state.copyWith(country: event.value, isFailure: false, isSuccess: false));
+        emit(state.copyWith(country: event.value));
+        break;
+      case 'status':
+        emit(state.copyWith(status: event.value));
         break;
       case 'additional':
-        emit(state.copyWith(additional: event.value, isFailure: false, isSuccess: false));
+        emit(state.copyWith(additional: event.value));
+        break;
+      case 'investmentAmount':
+        /*final parsed = int.tryParse(event.value);
+        if (parsed != null) {*/
+        emit(state.copyWith(investmentAmount: event.value)); 
+        //}
+        break;
+      case 'paybackPeriodMonths':
+        /*final parsed = int.tryParse(event.value);
+        if (parsed != null) {*/
+          emit(state.copyWith(paybackPeriodMonths: event.value));
+        //}
         break;
     }
   }
 
-  FutureOr<void> _onSubmit(SubmitInvestment event, Emitter<CreateInvestmentState> emit) async {
-    emit(state.copyWith(isSubmitting: true, isFailure: false, isSuccess: false));
-
-    // Validate fields
-    final allFieldsFilled = state.title.trim().isNotEmpty &&
-        state.description.trim().isNotEmpty &&
-        state.amount.trim().isNotEmpty &&
-        state.period.trim().isNotEmpty &&
-        state.country.trim().isNotEmpty;
-
-    final allDocsUploaded = state.documents.containsKey('doc1') &&
-        state.documents.containsKey('doc2') &&
-        state.documents.containsKey('doc3');
-
-    await Future.delayed(const Duration(seconds: 1));
-
-    if (allFieldsFilled && allDocsUploaded) {
-      emit(state.copyWith(isSubmitting: false, isSuccess: true, isFailure: false));
-    } else {
-      emit(state.copyWith(isSubmitting: false, isSuccess: false, isFailure: true));
-    }
+  void _onUpdateDocument(UpdateDocument event, Emitter<CreateInvestmentState> emit) {
+    final updatedDocs = Map<String, PlatformFile>.from(state.documents);
+    updatedDocs[event.key] = event.file;
+    emit(state.copyWith(documents: updatedDocs));
   }
 }
