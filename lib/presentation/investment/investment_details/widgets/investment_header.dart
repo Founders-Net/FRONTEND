@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_founders/presentation/investment/models/details_investment_model.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_founders/models/investment_model.dart';
+import 'package:flutter_founders/presentation/investment/investment_details/bloc/investment_details_bloc.dart';
+import 'package:flutter_founders/presentation/investment/investment_details/bloc/investment_details_event.dart';
+import 'package:flutter_founders/presentation/investment/investment_details/bloc/investment_details_state.dart';
 
 class InvestmentHeader extends StatelessWidget {
-  final DetailsInvestmentModel model;
+  final InvestmentModel model;
 
   const InvestmentHeader({super.key, required this.model});
 
@@ -31,11 +35,11 @@ class InvestmentHeader extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _InfoRow(label: 'Объём привлекаемых средств', value: model.amount),
+              _InfoRow(label: 'Объём привлекаемых средств', value: '${model.investmentAmount} ₽'),
               const SizedBox(height: 14),
-              _InfoRow(label: 'Срок окупаемости', value: model.period),
+              _InfoRow(label: 'Срок окупаемости', value: '${model.paybackPeriodMonths} мес.'),
               const SizedBox(height: 14),
-              _InfoRow(label: 'Страна реализации', value: model.location),
+              _InfoRow(label: 'Страна реализации', value: model.country),
               const SizedBox(height: 14),
               _FileBlock(
                 label: 'Бизнес-план',
@@ -63,9 +67,9 @@ class InvestmentHeader extends StatelessWidget {
         const SizedBox(height: 12),
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
-          children: const [
-            _IconButton(icon: Icons.favorite_border),
-            _IconButton(icon: Icons.bookmark_border),
+          children: [
+            _LikeButton(investmentId: model.id),
+            const _IconButton(icon: Icons.bookmark_border),
           ],
         ),
       ],
@@ -132,9 +136,7 @@ class _IconButton extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 4),
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
-        onTap: () {
-          // TODO: Handle tap
-        },
+        onTap: () {},
         child: SizedBox(
           width: 25,
           height: 25,
@@ -145,6 +147,44 @@ class _IconButton extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _LikeButton extends StatelessWidget {
+  final int investmentId;
+
+  const _LikeButton({required this.investmentId});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<InvestmentDetailsBloc, InvestmentDetailsState>(
+      builder: (context, state) {
+        final isLiked = state.isLiked;
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(12),
+            onTap: () {
+              context.read<InvestmentDetailsBloc>().add(
+                ToggleLikeInvestmentEvent(
+                  investmentId: investmentId,
+                  isLiked: isLiked,
+                ),
+              );
+            },
+            child: SizedBox(
+              width: 25,
+              height: 25,
+              child: Icon(
+                isLiked ? Icons.favorite : Icons.favorite_border,
+                color: isLiked ? Colors.red : Colors.white,
+                size: 33,
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

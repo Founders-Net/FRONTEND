@@ -2,6 +2,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter_founders/data/api/dio_client.dart';
 import 'package:flutter_founders/models/investment_model.dart';
 import 'package:flutter/foundation.dart'; // for debugPrint
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
 
 class InvestmentApiService {
   final Dio _dio = DioClient().dio;
@@ -126,6 +128,16 @@ class InvestmentApiService {
     }
   }
 
+  final _storage = const FlutterSecureStorage();
+
+  Future<String> _getToken() async {
+  final token = await _storage.read(key: 'auth_token');
+  if (token == null || token.isEmpty) {
+    throw Exception('No auth token found');
+  }
+  return 'Bearer $token';
+  }
+
   Future<void> deleteInvestment(int id) async {
     try {
       final response = await _dio.delete('/investments/$id');
@@ -135,4 +147,18 @@ class InvestmentApiService {
       rethrow;
     }
   }
+
+  Future<void> likeInvestment(int investmentId) async {
+  final token = await _getToken();
+  await _dio.post('/api/likes/$investmentId',
+    options: Options(headers: {'Authorization': token}),
+  );
+}
+
+Future<void> unlikeInvestment(int investmentId) async {
+  final token = await _getToken();
+  await _dio.delete('/api/likes/$investmentId',
+    options: Options(headers: {'Authorization': token}),
+  );
+}
 }

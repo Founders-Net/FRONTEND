@@ -1,4 +1,5 @@
 {
     "cmake.ignoreCMakeListsMissing": true,
-    "svg.preview.background": "editor"
+    "svg.preview.background": "editor",
+    "java.configuration.updateBuildConfiguration": "interactive"
 }

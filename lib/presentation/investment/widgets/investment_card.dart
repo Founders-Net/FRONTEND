@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_founders/models/investment_model.dart';
 import 'package:flutter_founders/presentation/investment/investment_details/investment_details.dart';
-import 'package:flutter_founders/presentation/investment/models/details_investment_model.dart';
 
 class InvestmentCard extends StatelessWidget {
   final InvestmentModel investment;
@@ -17,25 +16,11 @@ class InvestmentCard extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: InkWell(
         onTap: () {
-          final detailsModel = DetailsInvestmentModel(
-            title: investment.title,
-            amount: '${investment.investmentAmount.toStringAsFixed(0)} ₽',
-            period: '${investment.paybackPeriodMonths} мес.',
-            location: investment.country,
-            description: investment.description,
-            businessPlanUrl: investment.businessPlanUrl,
-            financialModelUrl: investment.financialModelUrl,
-            presentationUrl: investment.presentationUrl,
-        
-            managerName: investment.userName ?? 'Без имени',
-            managerImage: investment.userAvatar ?? '',
-            managerTags: investment.userInfo?.split(',') ?? [],
-          );
-
+          // Directly passing the InvestmentModel to InvestmentDetailsPage
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (_) => InvestmentDetailsPage(investment: detailsModel),
+              builder: (_) => InvestmentDetailsPage(investment: investment),
             ),
           );
         },
