@@ -29,8 +29,8 @@ class LoadInvestmentById extends InvestmentEvent {
 class CreateInvestment extends InvestmentEvent {
   final String title;
   final String description;
-  final int investmentAmount;
-  final int paybackPeriodMonths;
+  final String investmentAmount;
+  final String paybackPeriodMonths;
   final String country;
   final String businessPlanUrl;
   final String financialModelUrl;

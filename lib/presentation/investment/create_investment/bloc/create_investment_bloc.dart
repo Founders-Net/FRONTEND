@@ -13,6 +13,13 @@ class CreateInvestmentBloc extends Bloc<CreateInvestmentEvent, CreateInvestmentS
     on<UpdateDocument>(_onUpdateDocument);
   }
 
+  // ✅ Helper to format amount like "1000" → "1000.00"
+  String normalizeAmount(String value) {
+    final cleaned = value.replaceAll(',', '.').trim();
+    final parsed = double.tryParse(cleaned);
+    return parsed != null ? parsed.toStringAsFixed(2) : '';
+  }
+
   Future<void> _onSubmitInvestment(
     SubmitInvestmentEvent event,
     Emitter<CreateInvestmentState> emit,
@@ -23,22 +30,37 @@ class CreateInvestmentBloc extends Bloc<CreateInvestmentEvent, CreateInvestmentS
       submissionFailure: false,
     ));
 
+    final normalizedAmount = normalizeAmount(state.investmentAmount);
+
+    // Fail early if the amount is invalid or empty fields exist
+    if (normalizedAmount.isEmpty ||
+        state.title.trim().isEmpty ||
+        state.description.trim().isEmpty ||
+        state.country.trim().isEmpty ||
+        state.paybackPeriodMonths.trim().isEmpty) {
+      emit(state.copyWith(
+        isSubmitting: false,
+        submissionFailure: true,
+      ));
+      return;
+    }
+
     try {
       final response = await investmentApiService.createInvestment(
-        title: state.title,
-        description: state.description,
-        investmentAmount: int.tryParse(state.investmentAmount) ?? 0,
-        paybackPeriodMonths: int.tryParse(state.paybackPeriodMonths) ?? 0, 
-        country: state.country,
+        title: state.title.trim(),
+        description: state.description.trim(),
+        investmentAmount: normalizedAmount,
+        paybackPeriodMonths: state.paybackPeriodMonths.trim(),
+        country: state.country.trim(),
         businessPlanUrl: state.documents['doc1']?.path ?? '',
         financialModelUrl: state.documents['doc2']?.path ?? '',
         presentationUrl: state.documents['doc3']?.path ?? '',
       );
 
-      final statusMsg = response.data['statusMsg'];
-      final message = response.data['message'] ?? 'Unknown response';
+      final success = response.statusCode == 200 || response.statusCode == 201;
+      final hasId = response.data['investmentId'] != null;
 
-      if (response.statusCode == 200 && statusMsg == 'success') {
+      if (success && hasId) {
         emit(state.copyWith(
           isSubmitting: false,
           submissionSuccess: true,
@@ -78,16 +100,10 @@ class CreateInvestmentBloc extends Bloc<CreateInvestmentEvent, CreateInvestmentS
         emit(state.copyWith(additional: event.value));
         break;
       case 'investmentAmount':
-        /*final parsed = int.tryParse(event.value);
-        if (parsed != null) {*/
-        emit(state.copyWith(investmentAmount: event.value)); 
-        //}
+        emit(state.copyWith(investmentAmount: event.value));
         break;
       case 'paybackPeriodMonths':
-        /*final parsed = int.tryParse(event.value);
-        if (parsed != null) {*/
-          emit(state.copyWith(paybackPeriodMonths: event.value));
-        //}
+        emit(state.copyWith(paybackPeriodMonths: event.value));
         break;
     }
   }

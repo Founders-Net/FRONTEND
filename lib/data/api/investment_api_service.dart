@@ -53,8 +53,8 @@ class InvestmentApiService {
   Future<Response> createInvestment({
     required String title,
     required String description,
-    required int investmentAmount,
-    required int paybackPeriodMonths,
+    required String investmentAmount,
+    required String paybackPeriodMonths,
     required String country,
     required String businessPlanUrl,
     required String financialModelUrl,

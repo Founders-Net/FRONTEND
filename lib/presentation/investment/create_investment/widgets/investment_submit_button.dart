@@ -32,6 +32,10 @@ class InvestmentSubmitButton extends StatelessWidget {
               backgroundColor: Colors.red,
             ),
           );
+          // ✅ reset submissionFailure after showing snackbar
+          context.read<CreateInvestmentBloc>().emit(
+                state.copyWith(submissionFailure: false),
+              );
         }
       },
       builder: (context, state) {
