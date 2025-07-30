@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_founders/presentation/search/models/profile_model.dart';
 import '../bloc/search_bloc.dart';
 import '../bloc/search_state.dart';
-import '../models/profile_model.dart';
 import 'profile_card.dart';
 
 class ProfileList extends StatelessWidget {

@@ -1,4 +1,5 @@
-import '../models/profile_model.dart';
+
+import 'package:flutter_founders/presentation/search/models/profile_model.dart';
 
 final List<ProfileModel> mockProfiles = [
   ProfileModel(

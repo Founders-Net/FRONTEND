@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AddPartnerButton extends StatelessWidget {
-  const AddPartnerButton({super.key});
+  final int userId;
+
+  const AddPartnerButton({super.key, required this.userId});
 
   @override
   Widget build(BuildContext context) {
@@ -13,8 +15,7 @@ class AddPartnerButton extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 32),
           child: ElevatedButton(
-            onPressed: () {
-            },
+            onPressed: () {},
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFAF925D),
               padding: const EdgeInsets.symmetric(vertical: 14),

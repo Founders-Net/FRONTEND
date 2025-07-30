@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/profile_model.dart';
+import 'package:flutter_founders/presentation/search/models/profile_model.dart';
 
 class ProfileCard extends StatelessWidget {
   final ProfileModel profile;

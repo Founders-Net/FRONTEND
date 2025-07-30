@@ -14,4 +14,5 @@ class ProfileModel {
     this.subTags,
     required this.countryFlag,
   });
+
 }

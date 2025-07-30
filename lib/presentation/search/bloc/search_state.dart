@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import '../models/profile_model.dart';
+import 'package:flutter_founders/presentation/search/models/profile_model.dart';
 
 abstract class SearchState extends Equatable {
   const SearchState();

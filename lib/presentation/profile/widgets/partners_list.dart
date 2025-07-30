@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../models/partner_model.dart';
-import '../models/profile_model.dart';
 import '../other_profile_screen.dart';
 
 class PartnersList extends StatelessWidget {
@@ -20,14 +19,7 @@ class PartnersList extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => OtherProfileScreen(
-                      profile: ProfileModel(
-                        name: partner.name,
-                        company: partner.company,
-                        subtitle: partner.subtitle,
-                        avatarUrl: partner.avatarUrl,
-                      ),
-                    ),
+                    builder: (_) => OtherProfileScreen(userId: partner.id,),
                   ),
                 );
               },
@@ -40,7 +32,6 @@ class PartnersList extends StatelessWidget {
                       backgroundImage: AssetImage(partner.avatarUrl),
                     ),
                     const SizedBox(width: 12),
-
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -72,7 +63,6 @@ class PartnersList extends StatelessWidget {
                         ],
                       ),
                     ),
-
                     const SizedBox(width: 8),
                     const Icon(
                       Icons.chat_bubble_outline,
