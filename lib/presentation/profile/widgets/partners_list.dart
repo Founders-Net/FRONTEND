@@ -19,7 +19,7 @@ class PartnersList extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => OtherProfileScreen(userId: partner.id,),
+                    builder: (_) => OtherProfileScreen(userId: partner.id),
                   ),
                 );
               },
@@ -29,7 +29,17 @@ class PartnersList extends StatelessWidget {
                   children: [
                     CircleAvatar(
                       radius: 24,
-                      backgroundImage: AssetImage(partner.avatarUrl),
+                      backgroundImage: partner.userAvatar != null
+                          ? NetworkImage(partner.userAvatar!)
+                          : null,
+                      child: partner.userAvatar == null
+                          ? Text(
+                              partner.userName.isNotEmpty
+                                  ? partner.userName[0]
+                                  : '?',
+                              style: const TextStyle(color: Colors.white),
+                            )
+                          : null,
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -37,7 +47,7 @@ class PartnersList extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            partner.name,
+                            partner.userName,
                             style: GoogleFonts.inriaSans(
                               fontSize: 14,
                               fontWeight: FontWeight.w700,
@@ -46,7 +56,7 @@ class PartnersList extends StatelessWidget {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            partner.company,
+                            partner.companyName ?? '',
                             style: GoogleFonts.inriaSans(
                               fontSize: 13,
                               fontWeight: FontWeight.w500,
@@ -54,7 +64,7 @@ class PartnersList extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            partner.subtitle,
+                            partner.companyIndustry ?? '',
                             style: GoogleFonts.inriaSans(
                               fontSize: 12,
                               color: Colors.white70,

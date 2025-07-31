@@ -15,6 +15,7 @@ class ProfileHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         if (isMyProfile)
           Padding(
@@ -31,40 +32,48 @@ class ProfileHeader extends StatelessWidget {
 
         const SizedBox(height: 12),
 
-        CircleAvatar(
-          radius: 56,
-          backgroundImage: profile.avatarUrl != null
-              ? AssetImage(profile.avatarUrl!)
-              : const AssetImage('assets/images/default_avatar.png'),
+        Center(
+          child: CircleAvatar(
+            radius: 56,
+            backgroundImage: profile.avatarUrl != null
+                ? AssetImage(profile.avatarUrl!)
+                : const AssetImage('assets/images/default_avatar.png'),
+          ),
         ),
 
         const SizedBox(height: 12),
 
-        Text(
-          profile.name,
-          style: GoogleFonts.inriaSans(
-            fontSize: 16,
-            fontWeight: FontWeight.w700,
-            color: Colors.white,
+        Center(
+          child: Text(
+            profile.name,
+            style: GoogleFonts.inriaSans(
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              color: Colors.white,
+            ),
           ),
         ),
 
         const SizedBox(height: 4),
 
         if (profile.companyName != null)
-          Text(
-            profile.companyName!,
-            style: GoogleFonts.inriaSans(
-              fontSize: 13,
-              fontWeight: FontWeight.w400,
-              color: const Color(0xFFAF925D),
+          Center(
+            child: Text(
+              profile.companyName!,
+              style: GoogleFonts.inriaSans(
+                fontSize: 13,
+                fontWeight: FontWeight.w400,
+                color: const Color(0xFFAF925D),
+              ),
             ),
           ),
 
         if (profile.industry != null)
-          Text(
-            profile.industry!,
-            style: GoogleFonts.inriaSans(fontSize: 12, color: Colors.white70),
+          Center(
+            child: Text(
+              profile.industry!,
+              style: GoogleFonts.inriaSans(fontSize: 12, color: Colors.white70),
+            ),
           ),
       ],
     );

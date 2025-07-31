@@ -3,11 +3,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_founders/presentation/profile/bloc/profile_bloc.dart';
 import 'package:flutter_founders/presentation/profile/bloc/profile_event.dart';
 import 'package:flutter_founders/presentation/profile/bloc/profile_state.dart';
+import 'package:flutter_founders/presentation/profile/bloc/partners_bloc.dart';
+import 'package:flutter_founders/presentation/profile/widgets/partners_summary_button.dart';
 import 'package:flutter_founders/presentation/profile/widgets/profile_header.dart';
 import 'package:flutter_founders/presentation/profile/widgets/section_card.dart';
 import 'package:flutter_founders/presentation/profile/widgets/add_partner_button.dart';
 import 'package:flutter_founders/presentation/profile/widgets/report_user_label.dart';
 import 'package:flutter_founders/data/api/profile_api_service.dart';
+import 'package:flutter_founders/data/api/partners_api_service.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class OtherProfileScreen extends StatelessWidget {
@@ -17,9 +20,14 @@ class OtherProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) =>
-          ProfileBloc(ProfileApiService())..add(LoadUserProfile(userId)),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (_) =>
+              ProfileBloc(ProfileApiService())..add(LoadUserProfile(userId)),
+        ),
+        BlocProvider(create: (_) => PartnersBloc(PartnersApiService())),
+      ],
       child: Scaffold(
         backgroundColor: Colors.black,
         body: SafeArea(
@@ -38,6 +46,9 @@ class OtherProfileScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       ProfileHeader(profile: profile, isMyProfile: false),
+                      const SizedBox(height: 24),
+
+                      PartnersSummaryButton(count: profile.userPartners.length),
                       const SizedBox(height: 24),
 
                       Text(
@@ -64,11 +75,9 @@ class OtherProfileScreen extends StatelessWidget {
                       SectionCard(content: profile.companyInfo ?? ''),
                       const SizedBox(height: 24),
 
-                      // زر إضافة شريك
                       AddPartnerButton(userId: userId),
                       const SizedBox(height: 12),
 
-                      // رابط الإبلاغ عن المستخدم
                       const ReportUserLabel(),
                       const SizedBox(height: 24),
                     ],

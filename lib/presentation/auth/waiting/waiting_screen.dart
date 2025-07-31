@@ -43,13 +43,15 @@ class _WaitingScreenState extends State<WaitingScreen> {
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) async {
       if (remainingSeconds <= 0) {
         timer.cancel();
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              "Your request is still under review. Please try again later.",
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                "Your request is still under review. Please try again later.",
+              ),
             ),
-          ),
-        );
+          );
+        }
         return;
       }
 
@@ -74,6 +76,7 @@ class _WaitingScreenState extends State<WaitingScreen> {
         }
       }
 
+      if (!mounted) return;
       setState(() {
         remainingSeconds--;
         tick++;

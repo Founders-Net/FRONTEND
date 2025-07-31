@@ -1,15 +1,27 @@
-class PartnerModel {
-  final int id; // ✅ أضفنا الـ id هنا
-  final String name;
-  final String company;
-  final String subtitle;
-  final String avatarUrl;
+// lib/models/partner_model.dart
 
-  const PartnerModel({
-    required this.id, // ✅ مطلوب عند الإنشاء
-    required this.name,
-    required this.company,
-    required this.subtitle,
-    required this.avatarUrl,
+class PartnerModel {
+  final int id;
+  final String userName;
+  final String? userAvatar;
+  final String? companyName;
+  final String? companyIndustry;
+
+  PartnerModel({
+    required this.id,
+    required this.userName,
+    this.userAvatar,
+    this.companyName,
+    this.companyIndustry,
   });
+
+  factory PartnerModel.fromJson(Map<String, dynamic> json) {
+    return PartnerModel(
+      id: json['id'],
+      userName: json['userName'],
+      userAvatar: json['userAvatar'],
+      companyName: json['companyName'],
+      companyIndustry: json['companyIndustry'],
+    );
+  }
 }

@@ -1,11 +1,18 @@
+// lib/presentation/profile/profile_screen.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_founders/presentation/profile/bloc/profile_bloc.dart';
 import 'package:flutter_founders/presentation/profile/bloc/profile_event.dart';
 import 'package:flutter_founders/presentation/profile/bloc/profile_state.dart';
+import 'package:flutter_founders/presentation/profile/bloc/partners_bloc.dart';
+import 'package:flutter_founders/presentation/profile/bloc/partners_event.dart';
+import 'package:flutter_founders/presentation/profile/bloc/partners_state.dart';
 import 'package:flutter_founders/presentation/profile/widgets/profile_header.dart';
 import 'package:flutter_founders/presentation/profile/widgets/section_card.dart';
+import 'package:flutter_founders/presentation/profile/widgets/partners_list.dart';
 import 'package:flutter_founders/data/api/profile_api_service.dart';
+import 'package:flutter_founders/data/api/partners_api_service.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -13,9 +20,15 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) =>
-          ProfileBloc(ProfileApiService())..add(LoadCurrentProfile()),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (_) => ProfileBloc(ProfileApiService())..add(LoadCurrentProfile()),
+        ),
+        BlocProvider(
+          create: (_) => PartnersBloc(PartnersApiService())..add(LoadPartners()),
+        ),
+      ],
       child: Scaffold(
         backgroundColor: Colors.black,
         body: SafeArea(
@@ -101,9 +114,23 @@ class ProfileScreen extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      const SectionCard(
-                        content: '',
-                      ), // إلى حين وصول بيانات الباك
+
+                      /// ✅ BlocBuilder لعرض الشركاء الحقيقيين
+                      BlocBuilder<PartnersBloc, PartnersState>(
+                        builder: (context, state) {
+                          if (state.isLoading) {
+                            return const Center(
+                              child: CircularProgressIndicator(color: Colors.white),
+                            );
+                          } else if (state.error != null) {
+                            return SectionCard(content: 'Ошибка при загрузке партнёров');
+                          } else if (state.partners.isEmpty) {
+                            return const SectionCard(content: 'Нет партнёров');
+                          } else {
+                            return PartnersList(partners: state.partners);
+                          }
+                        },
+                      ),
                     ],
                   ),
                 );
