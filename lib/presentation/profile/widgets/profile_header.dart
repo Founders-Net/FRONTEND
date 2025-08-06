@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_founders/presentation/profile/edit_profile/edit_profile_page.dart';
 import 'package:flutter_founders/presentation/profile/models/profile_model.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class ProfileHeader extends StatelessWidget {
   final ProfileModel profile;
   final bool isMyProfile;
+  final VoidCallback? onProfileUpdated;
 
   const ProfileHeader({
     super.key,
     required this.profile,
     required this.isMyProfile,
+    this.onProfileUpdated,
   });
 
   @override
@@ -22,30 +25,45 @@ class ProfileHeader extends StatelessWidget {
             padding: const EdgeInsets.only(right: 16, top: 8),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
-              children: const [
-                Icon(Icons.edit, color: Colors.white70, size: 24),
-                SizedBox(width: 12),
-                Icon(Icons.settings, color: Colors.white70, size: 24),
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.edit, color: Colors.white70, size: 24),
+                  onPressed: () async {
+                    final updated = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => EditProfilePage(profile: profile),
+                      ),
+                    );
+                    print('🔄 Profile update result: $updated');
+                    if (updated == true) {
+                      onProfileUpdated?.call();
+                    }
+                  },
+                ),
+                const SizedBox(width: 12),
+                const Icon(Icons.settings, color: Colors.white70, size: 24),
               ],
             ),
           ),
-
         const SizedBox(height: 12),
 
+        // 👤 صورة البروفايل
         Center(
           child: CircleAvatar(
             radius: 56,
-            backgroundImage: profile.avatarUrl != null
-                ? AssetImage(profile.avatarUrl!)
+            backgroundImage:
+                (profile.avatarUrl != null && profile.avatarUrl!.isNotEmpty)
+                ? NetworkImage(profile.avatarUrl!) as ImageProvider
                 : const AssetImage('assets/images/default_avatar.png'),
           ),
         ),
-
         const SizedBox(height: 12),
 
+        // 🧑‍💼 الاسم
         Center(
           child: Text(
-            profile.name,
+            profile.name.isNotEmpty ? profile.name : 'Неизвестно',
             style: GoogleFonts.inriaSans(
               fontSize: 16,
               fontWeight: FontWeight.w700,
@@ -53,22 +71,22 @@ class ProfileHeader extends StatelessWidget {
             ),
           ),
         ),
-
         const SizedBox(height: 4),
 
-        if (profile.companyName != null)
-          Center(
-            child: Text(
-              profile.companyName!,
-              style: GoogleFonts.inriaSans(
-                fontSize: 13,
-                fontWeight: FontWeight.w400,
-                color: const Color(0xFFAF925D),
-              ),
+        // 🏢 اسم الشركة
+        Center(
+          child: Text(
+            (profile.companyName ?? 'Компания не указана'),
+            style: GoogleFonts.inriaSans(
+              fontSize: 13,
+              fontWeight: FontWeight.w400,
+              color: const Color(0xFFAF925D),
             ),
           ),
+        ),
 
-        if (profile.industry != null)
+        // 🧑‍🔧 مجال العمل (industry)
+        if ((profile.industry ?? '').isNotEmpty)
           Center(
             child: Text(
               profile.industry!,

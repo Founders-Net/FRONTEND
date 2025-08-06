@@ -48,7 +48,9 @@ class OtherProfileScreen extends StatelessWidget {
                       ProfileHeader(profile: profile, isMyProfile: false),
                       const SizedBox(height: 24),
 
-                      PartnersSummaryButton(count: profile.userPartners.length),
+                      PartnersSummaryButton(
+                        count: profile.userPartners?.length ?? 0,
+                      ),
                       const SizedBox(height: 24),
 
                       Text(

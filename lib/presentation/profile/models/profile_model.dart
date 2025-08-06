@@ -6,8 +6,10 @@ class ProfileModel {
   final String? industry;
   final String? bio;
   final String? companyInfo;
-  final bool isPartner;
-  final List<int> userPartners; // ✅ مضاف جديد
+  final String? phone;
+  final String? email;
+  final bool? isPartner;
+  final List<int>? userPartners;
 
   ProfileModel({
     required this.id,
@@ -17,23 +19,25 @@ class ProfileModel {
     this.industry,
     this.bio,
     this.companyInfo,
-    this.isPartner = false,
-    this.userPartners = const [], // ✅ default فارغة لو null
+    this.phone,
+    this.email,
+    this.isPartner,
+    this.userPartners,
   });
 
   factory ProfileModel.fromJson(Map<String, dynamic> json) {
-    print('🔵 JSON FROM API: $json');
-
     return ProfileModel(
       id: json['id'],
-      name: json['userName'] ?? 'Неизвестно',
+      name: json['userName'] ?? '',
       avatarUrl: json['userAvatar'],
       companyName: json['companyName'],
       industry: json['companyIndustry'],
       bio: json['userInfo'],
       companyInfo: json['companyInfo'],
+      phone: json['userPhone'],
+      email: json['userEmail'],
       isPartner: json['isPartner'] ?? false,
-      userPartners: List<int>.from(json['userPartners'] ?? []), // ✅ التحويل الصحيح
+      userPartners: (json['userPartners'] as List?)?.cast<int>() ?? [],
     );
   }
 
@@ -46,6 +50,8 @@ class ProfileModel {
       'companyIndustry': industry,
       'userInfo': bio,
       'companyInfo': companyInfo,
+      'userPhone': phone,
+      'userEmail': email,
       'isPartner': isPartner,
       'userPartners': userPartners,
     };

@@ -1,13 +1,11 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_founders/presentation/auth/phone_input/bloc/phone_input_bloc.dart';
 import 'package:flutter_founders/presentation/auth/splash/splash_screen.dart';
 import 'package:flutter_founders/data/api/auth_api_service.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+void main()  {
+
   runApp(const FoundersApp());
 }
 

@@ -15,6 +15,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     LoadCurrentProfile event,
     Emitter<ProfileState> emit,
   ) async {
+    emit(ProfileInitial());
     emit(ProfileLoading());
     try {
       print('🔄 Loading current profile...');
