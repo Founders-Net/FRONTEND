@@ -4,8 +4,7 @@ import 'package:flutter_founders/presentation/auth/phone_input/bloc/phone_input_
 import 'package:flutter_founders/presentation/auth/splash/splash_screen.dart';
 import 'package:flutter_founders/data/api/auth_api_service.dart';
 
-void main()  {
-
+void main() {
   runApp(const FoundersApp());
 }
 

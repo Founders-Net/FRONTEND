@@ -17,10 +17,9 @@ class EditProfileHeader extends StatelessWidget {
           children: [
             IconButton(
               icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
-              onPressed: () => Navigator.of(context,).pop(),
+              onPressed: () => Navigator.of(context).pop(),
             ),
             const SizedBox(width: 8),
-            
           ],
         ),
         const SizedBox(height: 12),
@@ -31,7 +30,8 @@ class EditProfileHeader extends StatelessWidget {
                 radius: 56,
                 backgroundImage: profile.avatarUrl != null
                     ? NetworkImage(profile.avatarUrl!)
-                    : const AssetImage('assets/images/default_avatar.png') as ImageProvider,
+                    : const AssetImage('assets/images/default_avatar.png')
+                          as ImageProvider,
               ),
               const SizedBox(height: 8),
               Text(
@@ -42,12 +42,23 @@ class EditProfileHeader extends StatelessWidget {
                   color: Colors.white,
                 ),
               ),
-              if (profile.companyName != null) ...[
+              if (profile.companyName != null &&
+                  profile.companyName!.isNotEmpty) ...[
                 const SizedBox(height: 4),
                 Text(
                   profile.companyName!,
                   style: GoogleFonts.inriaSans(
                     fontSize: 14,
+                    color: const Color(0xFFAF925D),
+                  ),
+                ),
+              ],
+              if (profile.industry != null && profile.industry!.isNotEmpty) ...[
+                const SizedBox(height: 2),
+                Text(
+                  profile.industry!,
+                  style: GoogleFonts.inriaSans(
+                    fontSize: 13,
                     color: const Color(0xFF808080),
                   ),
                 ),
