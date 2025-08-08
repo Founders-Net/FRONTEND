@@ -5,16 +5,20 @@ class SearchState extends Equatable {
   final bool isLoading;
   final String query;
   final List<UserProfile> profiles;
-  final List<String> selectedTags;
   final List<String> selectedCountries;
+  final List<String> selectedMainTags;
+  final List<String> selectedSubTags;
+  final bool isFoundersOnly;
   final String? error;
 
   const SearchState({
     required this.isLoading,
     required this.query,
     required this.profiles,
-    required this.selectedTags,
     required this.selectedCountries,
+    required this.selectedMainTags,
+    required this.selectedSubTags,
+    required this.isFoundersOnly,
     this.error,
   });
 
@@ -22,8 +26,10 @@ class SearchState extends Equatable {
         isLoading: false,
         query: '',
         profiles: [],
-        selectedTags: [],
         selectedCountries: [],
+        selectedMainTags: [],
+        selectedSubTags: [],
+        isFoundersOnly: false,
         error: null,
       );
 
@@ -31,21 +37,33 @@ class SearchState extends Equatable {
     bool? isLoading,
     String? query,
     List<UserProfile>? profiles,
-    List<String>? selectedTags,
     List<String>? selectedCountries,
+    List<String>? selectedMainTags,
+    List<String>? selectedSubTags,
+    bool? isFoundersOnly,
     String? error,
   }) {
     return SearchState(
       isLoading: isLoading ?? this.isLoading,
       query: query ?? this.query,
       profiles: profiles ?? this.profiles,
-      selectedTags: selectedTags ?? this.selectedTags,
       selectedCountries: selectedCountries ?? this.selectedCountries,
+      selectedMainTags: selectedMainTags ?? this.selectedMainTags,
+      selectedSubTags: selectedSubTags ?? this.selectedSubTags,
+      isFoundersOnly: isFoundersOnly ?? this.isFoundersOnly,
       error: error,
     );
   }
 
   @override
-  List<Object?> get props => [isLoading, query, profiles, selectedTags, selectedCountries, error];
+  List<Object?> get props => [
+        isLoading,
+        query,
+        profiles,
+        selectedCountries,
+        selectedMainTags,
+        selectedSubTags,
+        isFoundersOnly,
+        error,
+      ];
 }
-

@@ -1,10 +1,13 @@
-// lib/models/user_short.dart
 class UserShort {
   final int id;
   final String userName;
   final String? userAvatar;
   final String? companyName;
   final String? companyIndustry;
+  final List<String> countries;
+  final List<String> mainTags;
+  final List<String> subTags;
+  final bool isFoundersOnly;
 
   UserShort({
     required this.id,
@@ -12,6 +15,10 @@ class UserShort {
     this.userAvatar,
     this.companyName,
     this.companyIndustry,
+    required this.countries,
+    required this.mainTags,
+    required this.subTags,
+    required this.isFoundersOnly,
   });
 
   factory UserShort.fromJson(Map<String, dynamic> json) {
@@ -21,6 +28,10 @@ class UserShort {
       userAvatar: json['userAvatar'],
       companyName: json['companyName'],
       companyIndustry: json['companyIndustry'],
+      countries: List<String>.from(json['countries'] ?? []),
+      mainTags: List<String>.from(json['mainTags'] ?? []),
+      subTags: List<String>.from(json['subTags'] ?? []),
+      isFoundersOnly: json['isFoundersOnly'] ?? false,
     );
   }
 }

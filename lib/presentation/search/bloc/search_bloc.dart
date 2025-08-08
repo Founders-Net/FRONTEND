@@ -54,19 +54,36 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
   }
 
   Future<void> _onFiltersChanged(
-      SearchFiltersChanged event, Emitter<SearchState> emit) async {
-    emit(state.copyWith(isLoading: true, selectedCountries: event.countries));
-    try {
-      final results = await apiService.searchUsers(query: state.query);
-      final filtered = results.where((u) =>
-        event.countries.isEmpty ||
-        (u.companyIndustry != null && event.countries.contains(u.companyIndustry!))
-      ).map((u) => u.toProfileModel()).toList();
+  SearchFiltersChanged event, Emitter<SearchState> emit) async {
+  emit(state.copyWith(
+    isLoading: true,
+    selectedCountries: event.countries,
+    selectedMainTags: event.mainTags,
+    selectedSubTags: event.subTags,
+    isFoundersOnly: event.isFoundersOnly,
+  ));
 
-      emit(state.copyWith(isLoading: false, profiles: filtered));
-    } catch (e) {
-      emit(state.copyWith(isLoading: false, error: e.toString()));
-    }
+  try {
+    final results = await apiService.searchUsers(query: state.query);
+
+    final filtered = results.where((u) {
+    final matchCountry = event.countries.isEmpty ||
+        u.countries.any((c) => event.countries.contains(c));
+
+    final matchMainTag = event.mainTags.isEmpty ||
+        u.mainTags.any((tag) => event.mainTags.contains(tag));
+
+    final matchSubTag = event.subTags.isEmpty ||
+        u.subTags.any((sub) => event.subTags.contains(sub));
+
+    final matchFounders = !event.isFoundersOnly || u.isFoundersOnly;
+
+    return matchCountry && matchMainTag && matchSubTag && matchFounders;
+  }).map((u) => u.toProfileModel()).toList();
+
+    emit(state.copyWith(isLoading: false, profiles: filtered));
+  } catch (e) {
+    emit(state.copyWith(isLoading: false, error: e.toString()));
   }
 }
-
+}

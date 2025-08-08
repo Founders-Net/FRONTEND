@@ -30,13 +30,15 @@ class _SearchViewState extends State<_SearchView> {
   final TextEditingController _controller = TextEditingController();
 
   void _openFilter() {
-    showModalBottomSheet(
-      context: context,
-      builder: (_) => const FilterBottomSheet(),
-      backgroundColor: Colors.black,
-      isScrollControlled: true,
-    );
-  }
+  final bloc = context.read<SearchBloc>(); // ✅ grab the bloc from context
+  showModalBottomSheet(
+    context: context,
+    builder: (_) => FilterBottomSheet(searchBloc: bloc), // ✅ pass it here
+    backgroundColor: Colors.black,
+    isScrollControlled: true,
+  );
+}
+
 
   void _onTextChanged(String text) {
     context.read<SearchBloc>().add(SearchQueryChanged(text));

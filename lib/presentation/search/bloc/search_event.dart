@@ -14,13 +14,25 @@ class SearchQueryChanged extends SearchEvent {
 }
 
 class SearchFiltersChanged extends SearchEvent {
-  final List<String> tags;
   final List<String> countries;
+  final List<String> mainTags;
+  final List<String> subTags;
+  final bool isFoundersOnly;
 
-  const SearchFiltersChanged({required this.tags, required this.countries});
+  const SearchFiltersChanged({
+    required this.countries,
+    required this.mainTags,
+    required this.subTags,
+    required this.isFoundersOnly,
+  });
 
   @override
-  List<Object?> get props => [tags, countries];
+  List<Object?> get props => [
+        countries,
+        mainTags,
+        subTags,
+        isFoundersOnly,
+      ];
 }
 
 class LoadInitialProfiles extends SearchEvent {

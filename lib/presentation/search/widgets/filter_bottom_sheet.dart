@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:country_picker/country_picker.dart';
+import 'package:flutter_founders/presentation/search/bloc/search_bloc.dart';
+import 'package:flutter_founders/presentation/search/bloc/search_event.dart';
 import 'tag_subtags.dart';
 
+
 class FilterBottomSheet extends StatefulWidget {
-  const FilterBottomSheet({super.key});
+  
+  final SearchBloc searchBloc;
+
+  const FilterBottomSheet({super.key, required this.searchBloc});
 
   @override
   State<FilterBottomSheet> createState() => _FilterBottomSheetState();
@@ -13,7 +19,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
   List<String> selectedCountries = [];
   List<String> selectedMainTags = [];
   List<String> selectedSubTags = [];
-  Set<String> expandedTags = {}; 
+  Set<String> expandedTags = {};
   bool isFoundersOnly = false;
 
   void _resetFilters() {
@@ -27,9 +33,17 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
   }
 
   void _applyFilters() {
-    debugPrint('Applied Filters:\nCountries: $selectedCountries\nTags: $selectedMainTags\nSubTags: $selectedSubTags\nFounders Only: $isFoundersOnly');
+    widget.searchBloc.add(
+      SearchFiltersChanged(
+        countries: selectedCountries,
+        mainTags: selectedMainTags,
+        subTags: selectedSubTags,
+        isFoundersOnly: isFoundersOnly,
+      ),
+    );
     Navigator.pop(context);
   }
+
 
   @override
   Widget build(BuildContext context) {
