@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_founders/data/api/profile_api_service.dart';
 import 'profile_event.dart';
@@ -18,12 +19,12 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     emit(ProfileInitial());
     emit(ProfileLoading());
     try {
-      print('🔄 Loading current profile...');
+      debugPrint('🔄 Loading current profile...');
       final profile = await apiService.getMyProfile();
-      print('✅ Current profile loaded: ${profile.toJson()}');
+      debugPrint('✅ Current profile loaded: ${profile.toJson()}');
       emit(ProfileLoaded(profile));
     } catch (e) {
-      print('❌ Error loading current profile: $e');
+      debugPrint('❌ Error loading current profile: $e');
       emit(ProfileError(e.toString()));
     }
   }
@@ -34,12 +35,12 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   ) async {
     emit(ProfileLoading());
     try {
-      print('🔄 Loading profile for user ID: ${event.userId}');
+      debugPrint('🔄 Loading profile for user ID: ${event.userId}');
       final profile = await apiService.getUserProfileById(event.userId);
-      print('✅ User profile loaded: ${profile.toJson()}');
+      debugPrint('✅ User profile loaded: ${profile.toJson()}');
       emit(ProfileLoaded(profile));
     } catch (e) {
-      print('❌ Error loading user profile: $e');
+      debugPrint('❌ Error loading user profile: $e');
       emit(ProfileError(e.toString()));
     }
   }

@@ -1,4 +1,5 @@
 // ✅ lib/presentation/auth/code_verification/bloc/code_verification_bloc.dart
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'code_verification_event.dart';
@@ -28,12 +29,12 @@ class CodeVerificationBloc
         );
         final token = result['token'];
 
-        print("🟢 Token from server: $token");
+        debugPrint("🟢 Token from server: $token");
         await secureStorage.write(key: 'auth_token', value: token);
-        print("🔥 TOKEN FOR POSTMAN: $token");
+        debugPrint("🔥 TOKEN FOR POSTMAN: $token");
 
         final reRead = await secureStorage.read(key: 'auth_token');
-        print("🔁 Token re-read after saving: $reRead");
+        debugPrint("🔁 Token re-read after saving: $reRead");
 
         // ✅❌ لا ترسل sendRegisterRequest() هنا
 
@@ -45,7 +46,7 @@ class CodeVerificationBloc
           ),
         );
       } catch (e) {
-        print("❌ Error during code verification: $e");
+        debugPrint("❌ Error during code verification: $e");
         emit(state.copyWith(isSubmitting: false, errorMessage: e.toString()));
       }
     });

@@ -35,7 +35,7 @@ class _PostsPageState extends State<PostsPage> {
   Widget build(BuildContext context) {
     return BlocBuilder<PostsBloc, PostsState>(
       builder: (context, state) {
-        print('🎯 Posts in state: ${state.posts.length}');
+        debugPrint('🎯 Posts in state: ${state.posts.length}');
 
         if (state.isLoading && state.posts.isEmpty) {
           return const Center(

@@ -68,7 +68,7 @@ class InvestmentApiService {
       options: Options(headers: {'Authorization': token}),
     );
 
-    print('📥 API Response: ${response.data}');
+    debugPrint('📥 API Response: ${response.data}');
 
     final raw = response.data;
 

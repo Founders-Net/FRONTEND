@@ -36,7 +36,7 @@ class ProfileScreen extends StatelessWidget {
           child: BlocListener<ProfileBloc, ProfileState>(
             listener: (context, state) {
               if (state is ProfileLoaded) {
-                print("📣 Listener got new profile: ${state.profile.toJson()}");
+                debugPrint("📣 Listener got new profile: ${state.profile.toJson()}");
               }
             },
             child: BlocBuilder<ProfileBloc, ProfileState>(
@@ -47,7 +47,7 @@ class ProfileScreen extends StatelessWidget {
                   );
                 } else if (state is ProfileLoaded) {
                   final profile = state.profile;
-                  print("✅ UI got profile: ${profile.toJson()}");
+                  debugPrint("✅ UI got profile: ${profile.toJson()}");
 
                   return SingleChildScrollView(
                     padding: const EdgeInsets.all(16),

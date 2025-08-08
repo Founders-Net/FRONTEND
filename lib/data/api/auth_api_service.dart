@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_founders/data/api/dio_client.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
@@ -8,7 +9,7 @@ class AuthApiService {
 
   Future<void> sendPhoneRequest(String phone) async {
     await dio.post('/auth/request', data: {'fio': 'Test User', 'phone': phone});
-    print("📞 Phone request sent to: $phone");
+    debugPrint("📞 Phone request sent to: $phone");
   }
 
   Future<Map<String, dynamic>> confirmCode(String phone, String code) async {
@@ -18,11 +19,11 @@ class AuthApiService {
     );
 
     final token = response.data['token'];
-    print("🟢 Token from server: $token");
+    debugPrint("🟢 Token from server: $token");
 
     if (token != null) {
       await secureStorage.write(key: 'auth_token', value: token);
-      print("✅ Token saved");
+      debugPrint("✅ Token saved");
     }
 
     return response.data;
@@ -34,9 +35,9 @@ class AuthApiService {
       if (response.statusCode == 401) {
         throw Exception("Unauthorized: Token might be invalid or expired.");
       }
-      print("📩 Register request sent: ${response.statusCode} - ${response.data}");
+      debugPrint("📩 Register request sent: ${response.statusCode} - ${response.data}");
     } on DioException catch (e) {
-      print("❌ DioException in register request: ${e.response?.data}");
+      debugPrint("❌ DioException in register request: ${e.response?.data}");
       rethrow;
     }
   }
@@ -47,10 +48,10 @@ class AuthApiService {
       if (response.statusCode == 401) {
         throw Exception("Unauthorized");
       }
-      print("📋 Register status: ${response.statusCode} ${response.data}");
+      debugPrint("📋 Register status: ${response.statusCode} ${response.data}");
       return response.data;
     } on DioException catch (e) {
-      print("🔴 Error checking register status: ${e.response?.data}");
+      debugPrint("🔴 Error checking register status: ${e.response?.data}");
       rethrow;
     }
   }

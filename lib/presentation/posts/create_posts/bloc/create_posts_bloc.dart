@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'create_posts_event.dart';
 import 'create_posts_state.dart';
@@ -36,11 +37,11 @@ class CreatePostBloc extends Bloc<CreatePostEvent, CreatePostState> {
 
       try {
         // ✅ Debug prints
-        print('🔍 Title: ${state.title} (${state.title.length})');
-        print(
+        debugPrint('🔍 Title: ${state.title} (${state.title.length})');
+        debugPrint(
           '🔍 Description: ${state.description} (${state.description.length})',
         );
-        print('🔍 Tags: ${state.selectedTags}');
+        debugPrint('🔍 Tags: ${state.selectedTags}');
 
         await apiService.createPost(
           title: state.title,

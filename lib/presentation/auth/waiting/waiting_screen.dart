@@ -32,10 +32,10 @@ class _WaitingScreenState extends State<WaitingScreen> {
   Future<void> _sendRegisterRequestOnce() async {
     try {
       await authApiService.sendRegisterRequest();
-      print("📬 Register request sent successfully");
+      debugPrint("📬 Register request sent successfully");
       registerSent = true;
     } catch (e) {
-      print("❌ Failed to send register request: $e");
+      debugPrint("❌ Failed to send register request: $e");
     }
   }
 
@@ -60,7 +60,7 @@ class _WaitingScreenState extends State<WaitingScreen> {
         try {
           final result = await authApiService.checkRegisterStatus();
           final status = result['registerStatus'];
-          print("🟡 Current registerStatus: $status");
+          debugPrint("🟡 Current registerStatus: $status");
 
           if (status == 'accepted') {
             timer.cancel();
@@ -72,7 +72,7 @@ class _WaitingScreenState extends State<WaitingScreen> {
             }
           }
         } catch (e) {
-          print("🔴 Error checking register status: $e");
+          debugPrint("🔴 Error checking register status: $e");
         }
       }
 

@@ -35,7 +35,7 @@ class ProfileHeader extends StatelessWidget {
                         builder: (_) => EditProfilePage(profile: profile),
                       ),
                     );
-                    print('🔄 Profile update result: $updated');
+                    debugPrint('🔄 Profile update result: $updated');
                     if (updated == true) {
                       onProfileUpdated?.call();
                     }

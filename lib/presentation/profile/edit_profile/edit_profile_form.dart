@@ -96,7 +96,7 @@ class _EditProfileFormState extends State<EditProfileForm> {
       );
       Navigator.pop(context, true);
     } catch (e) {
-      print('❌ Error: $e');
+      debugPrint('❌ Error: $e');
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('❌ Failed to update profile: $e')));

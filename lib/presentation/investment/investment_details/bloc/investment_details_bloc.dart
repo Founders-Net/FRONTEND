@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'investment_details_event.dart';
 import 'investment_details_state.dart';
@@ -19,24 +20,24 @@ class InvestmentDetailsBloc extends Bloc<InvestmentDetailsEvent, InvestmentDetai
       ));
     } catch (e) {
       emit(state.copyWith(isLoading: false));
-      print('❌ Failed to load investment: $e');
+      debugPrint('❌ Failed to load investment: $e');
     }
   });
 
     on<ToggleLikeInvestmentEvent>((event, emit) async {
       final currentlyLiked = state.isLiked;
-      emit(state.copyWith(isLiked: !currentlyLiked)); // ✅ Optimistic update
+      emit(state.copyWith(isLiked: !currentlyLiked));
       try {
         if (currentlyLiked) {
           await apiService.unlikeInvestment(event.postId);
-          print('💔 Unliked investment ${event.postId}');
+          debugPrint('💔 Unliked investment ${event.postId}');
         } else {
           await apiService.likeInvestment(event.postId);
-          print('❤️ Liked investment ${event.postId}');
+          debugPrint('❤️ Liked investment ${event.postId}');
         }
       } catch (e) {
         emit(state.copyWith(isLiked: currentlyLiked)); // ❌ Revert on error
-        print('❌ Error toggling like: $e');
+        debugPrint('❌ Error toggling like: $e');
       }
     });
 

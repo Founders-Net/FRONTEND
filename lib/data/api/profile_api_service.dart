@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_founders/models/user_short.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_founders/presentation/profile/models/profile_model.dart';
@@ -14,28 +15,28 @@ class ProfileApiService {
 
 
   Future<ProfileModel> getMyProfile() async {
-    print('📡 [GET] /users/profile');
+    debugPrint('📡 [GET] /users/profile');
     final response = await _dio.get('/users/profile');
-    print('📥 Response: ${response.data}');
+    debugPrint('📥 Response: ${response.data}');
     return ProfileModel.fromJson(response.data);
   }
 
   Future<ProfileModel> getUserProfileById(int id) async {
-    print('📡 [GET] /users/$id');
+    debugPrint('📡 [GET] /users/$id');
     final response = await _dio.get('/users/$id');
-    print('📥 Response: ${response.data}');
+    debugPrint('📥 Response: ${response.data}');
     return ProfileModel.fromJson(response.data);
   }
 
   Future<void> updateCompany(int userId, int companyId) async {
-    print(
+    debugPrint(
       '🛠️ [PUT] /users/update with data: {id: $userId, companyId: $companyId}',
     );
     final response = await _dio.put(
       '/users/update',
       data: {"id": userId, "companyId": companyId},
     );
-    print('✅ Update response status: ${response.statusCode}');
+    debugPrint('✅ Update response status: ${response.statusCode}');
   }
 
   Future<void> updateProfile(ProfileModel profile) async {
@@ -51,7 +52,7 @@ class ProfileApiService {
       "companyInfo": profile.companyInfo ?? "",
     };
 
-    print('🛠️ [PUT] /users/update with data: $updateData');
+    debugPrint('🛠️ [PUT] /users/update with data: $updateData');
 
     final response = await _dio.put(
       '/users/update',
@@ -64,7 +65,7 @@ class ProfileApiService {
       ),
     );
 
-    print('✅ Update response status: ${response.statusCode}');
+    debugPrint('✅ Update response status: ${response.statusCode}');
   }
   
   Future<List<UserShort>> searchUsers({String? query}) async {

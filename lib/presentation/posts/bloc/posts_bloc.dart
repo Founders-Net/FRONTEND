@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'posts_event.dart';
 import 'posts_state.dart';
@@ -22,7 +23,7 @@ class PostsBloc extends Bloc<PostsEvent, PostsState> {
         cursor: event.cursor,
         limit: event.limit,
       );
-      print('📦 Posts emitted: ${posts.length}');
+      debugPrint('📦 Posts emitted: ${posts.length}');
 
       emit(
         state.copyWith(

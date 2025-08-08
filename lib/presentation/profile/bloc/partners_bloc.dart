@@ -1,5 +1,5 @@
 // lib/presentation/profile/bloc/partners_bloc.dart
-
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_founders/data/api/partners_api_service.dart';
 import 'package:flutter_founders/presentation/profile/models/partner_model.dart';
@@ -24,7 +24,7 @@ class PartnersBloc extends Bloc<PartnersEvent, PartnersState> {
       final partners = await apiService.getPartners();
       emit(state.copyWith(partners: partners, isLoading: false));
     } catch (e) {
-      print('❌ Error loading partners: $e');
+      debugPrint('❌ Error loading partners: $e');
       emit(state.copyWith(error: e.toString(), isLoading: false));
     }
   }
