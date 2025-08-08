@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 class SearchBarWithFilter extends StatelessWidget {
   final TextEditingController controller;
   final VoidCallback onFilterPressed;
-  final ValueChanged<String>? onChanged; // ✅ NEW
+  final ValueChanged<String>? onChanged;
 
 
   const SearchBarWithFilter({
     super.key,
     required this.controller,
     required this.onFilterPressed,
-    this.onChanged, // ✅ NEW
+    this.onChanged, 
 
   });
 

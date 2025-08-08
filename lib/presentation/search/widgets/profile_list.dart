@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_founders/models/user_profile.dart'; // Updated import
+import 'package:flutter_founders/models/user_profile.dart';
 import '../bloc/search_bloc.dart';
 import '../bloc/search_state.dart';
 import 'profile_card.dart';
