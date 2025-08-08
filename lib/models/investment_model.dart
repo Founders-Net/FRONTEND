@@ -9,13 +9,14 @@ class InvestmentModel {
   final int investmentAmount;
   final int paybackPeriodMonths;
   final String country;
-  final String businessPlanUrl;
-  final String financialModelUrl;
-  final String presentationUrl;
+  final String? businessPlanUrl;
+  final String? financialModelUrl;
+  final String? presentationUrl;
   final String status;
   final int? likesCount;
   final int? commentsCount;
   final String createdAt;
+  final bool liked;
 
   InvestmentModel({
     required this.id,
@@ -35,6 +36,7 @@ class InvestmentModel {
     this.likesCount,
     this.commentsCount,
     required this.createdAt,
+    this.liked = false,
   });
 
 factory InvestmentModel.fromJson(Map<String, dynamic> json) {
@@ -49,13 +51,14 @@ factory InvestmentModel.fromJson(Map<String, dynamic> json) {
     investmentAmount: num.tryParse(json['investmentAmount'].toString())?.toInt() ?? 0,
     paybackPeriodMonths: num.tryParse(json['paybackPeriodMonths'].toString())?.toInt() ?? 0,
     country: json['country'] ?? '',
-    businessPlanUrl: json['businessPlanUrl'] ?? '',
-    financialModelUrl: json['financialModelUrl'] ?? '',
-    presentationUrl: json['presentationUrl'] ?? '',
+    businessPlanUrl: json['businessPlanUrl'],
+    financialModelUrl: json['financialModelUrl'],
+    presentationUrl: json['presentationUrl'],
     status: json['status'] ?? '',
     likesCount: json['likesCount'] != null ? int.tryParse(json['likesCount'].toString()) : null,
     commentsCount: json['commentsCount'] != null ? int.tryParse(json['commentsCount'].toString()) : null,
     createdAt: json['createdAt'] ?? '',
+    liked: json['isLiked'] ?? false,
   );
 }
 }

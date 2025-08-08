@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_founders/models/investment_model.dart';
 import 'package:flutter_founders/presentation/investment/investment_details/bloc/investment_details_state.dart';
 import 'widgets/investment_header.dart';
 import 'widgets/investment_manager_info.dart';
@@ -11,18 +10,18 @@ import 'bloc/investment_details_event.dart';
 import 'package:flutter_founders/data/api/investment_api_service.dart';
 
 class InvestmentDetailsPage extends StatelessWidget {
-  final InvestmentModel investment;
+  final int postId;
 
-  const InvestmentDetailsPage({super.key, required this.investment});
+  const InvestmentDetailsPage({super.key, required this.postId});
 
   @override
   Widget build(BuildContext context) {
-    debugPrint('🔄 Building InvestmentDetailsPage for ID: ${investment.id}');
+    debugPrint('🔄 Building InvestmentDetailsPage for ID: $postId');
     return BlocProvider(
       create: (_) {
         debugPrint('🚀 Creating InvestmentDetailsBloc and loading investment...');
         return InvestmentDetailsBloc(apiService: InvestmentApiService())
-          ..add(LoadInvestmentDetailsEvent(investment));
+          ..add(LoadInvestmentDetailsEvent(postId: postId));
       },
       child: Scaffold(
         backgroundColor: Colors.black,
@@ -42,9 +41,10 @@ class InvestmentDetailsPage extends StatelessWidget {
           child: BlocBuilder<InvestmentDetailsBloc, InvestmentDetailsState>(
             builder: (context, state) {
               debugPrint('📦 BlocBuilder rebuild: isLoading=${state.isLoading}, isLiked=${state.isLiked}');
-              if (state.isLoading) {
+              if (state.isLoading || state.investment == null) {
                 return const Center(child: CircularProgressIndicator());
               }
+
               final investment = state.investment!;
               return SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),

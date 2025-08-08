@@ -7,21 +7,25 @@ class InvestmentDetailsBloc extends Bloc<InvestmentDetailsEvent, InvestmentDetai
   final InvestmentApiService apiService;
 
   InvestmentDetailsBloc({required this.apiService}) : super(InvestmentDetailsState.initial()) {
-    on<LoadInvestmentDetailsEvent>((event, emit) async {
-      emit(state.copyWith(isLoading: true));
-      await Future.delayed(const Duration(milliseconds: 500)); 
+  on<LoadInvestmentDetailsEvent>((event, emit) async {
+    emit(state.copyWith(isLoading: true));
 
-      bool isLiked = event.investment.likesCount != null && event.investment.likesCount! > 0;
-      
+    try {
+      final investment = await apiService.getInvestmentById(event.postId); // make sure you're using postId now
       emit(state.copyWith(
         isLoading: false,
-        investment: event.investment,
-        isLiked: isLiked, 
+        investment: investment,
+        isLiked: investment.liked,
       ));
-    });
+    } catch (e) {
+      emit(state.copyWith(isLoading: false));
+      print('❌ Failed to load investment: $e');
+    }
+  });
 
     on<ToggleLikeInvestmentEvent>((event, emit) async {
       final currentlyLiked = state.isLiked;
+      emit(state.copyWith(isLiked: !currentlyLiked)); // ✅ Optimistic update
       try {
         if (currentlyLiked) {
           await apiService.unlikeInvestment(event.postId);
@@ -30,8 +34,8 @@ class InvestmentDetailsBloc extends Bloc<InvestmentDetailsEvent, InvestmentDetai
           await apiService.likeInvestment(event.postId);
           print('❤️ Liked investment ${event.postId}');
         }
-        emit(state.copyWith(isLiked: !currentlyLiked)); 
       } catch (e) {
+        emit(state.copyWith(isLiked: currentlyLiked)); // ❌ Revert on error
         print('❌ Error toggling like: $e');
       }
     });

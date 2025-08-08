@@ -4,16 +4,26 @@ abstract class SearchEvent extends Equatable {
   const SearchEvent();
 }
 
-class LoadProfiles extends SearchEvent {
+class SearchQueryChanged extends SearchEvent {
+  final String query;
+
+  const SearchQueryChanged(this.query);
+
   @override
-  List<Object?> get props => [];
+  List<Object?> get props => [query];
 }
 
-class SearchTextChanged extends SearchEvent {
-  final String searchText;
+class SearchFiltersChanged extends SearchEvent {
+  final List<String> tags;
+  final List<String> countries;
 
-  const SearchTextChanged(this.searchText);
+  const SearchFiltersChanged({required this.tags, required this.countries});
 
   @override
-  List<Object?> get props => [searchText];
+  List<Object?> get props => [tags, countries];
+}
+
+class LoadInitialProfiles extends SearchEvent {
+  @override
+  List<Object?> get props => [];
 }

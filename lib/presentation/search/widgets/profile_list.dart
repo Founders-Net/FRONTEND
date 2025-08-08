@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_founders/presentation/search/models/profile_model.dart';
+import 'package:flutter_founders/models/user_profile.dart'; // Updated import
 import '../bloc/search_bloc.dart';
 import '../bloc/search_state.dart';
 import 'profile_card.dart';
@@ -12,12 +12,19 @@ class ProfileList extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<SearchBloc, SearchState>(
       builder: (context, state) {
-        if (state is SearchLoading) {
+        if (state.isLoading) {
           return const Center(child: CircularProgressIndicator());
-        } else if (state is SearchLoaded) {
-          final List<ProfileModel> profiles = state.profiles;
+        } else if (state.error != null) {
+          return Center(
+            child: Text(
+              state.error!,
+              style: const TextStyle(color: Colors.red),
+            ),
+          );
+        } else {
+          final List<UserProfile>? profiles = state.profiles;
 
-          if (profiles.isEmpty) {
+          if (profiles == null || profiles.isEmpty) {
             return const Center(
               child: Text(
                 'Ничего не найдено',
@@ -33,15 +40,6 @@ class ProfileList extends StatelessWidget {
               return ProfileCard(profile: profiles[index]);
             },
           );
-        } else if (state is SearchError) {
-          return Center(
-            child: Text(
-              state.message,
-              style: const TextStyle(color: Colors.red),
-            ),
-          );
-        } else {
-          return const SizedBox.shrink();
         }
       },
     );

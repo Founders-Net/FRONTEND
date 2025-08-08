@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_founders/data/api/profile_api_service.dart';
 import 'bloc/search_bloc.dart';
 import 'bloc/search_event.dart';
 import 'widgets/search_bar_with_filter.dart';
@@ -12,7 +13,7 @@ class SearchPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => SearchBloc()..add(LoadProfiles()),
+      create: (_) => SearchBloc(apiService: ProfileApiService())..add(LoadInitialProfiles()),
       child: const _SearchView(),
     );
   }
@@ -37,18 +38,28 @@ class _SearchViewState extends State<_SearchView> {
     );
   }
 
+  void _onTextChanged(String text) {
+    context.read<SearchBloc>().add(SearchQueryChanged(text));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
         title: const Padding(
-           padding: EdgeInsets.only(left: 8.0, top: 28, bottom: 10),
+          padding: EdgeInsets.only(left: 8.0, top: 28, bottom: 10),
           child: Text(
-          'Поиск',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w400, fontFamily: 'InriaSans', 
-               fontSize: 20, letterSpacing: -0.6, height: 1.0),
-        ),
+            'Поиск',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w400,
+              fontFamily: 'InriaSans',
+              fontSize: 20,
+              letterSpacing: -0.6,
+              height: 1.0,
+            ),
+          ),
         ),
         backgroundColor: Colors.black,
         elevation: 0,
@@ -58,6 +69,7 @@ class _SearchViewState extends State<_SearchView> {
         children: [
           SearchBarWithFilter(
             controller: _controller,
+            onChanged: _onTextChanged, // 🔍 connect search text to BLoC
             onFilterPressed: _openFilter,
           ),
           const SizedBox(height: 25),

@@ -20,7 +20,7 @@ class InvestmentCard extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (_) => InvestmentDetailsPage(investment: investment),
+              builder: (_) => InvestmentDetailsPage(postId: investment.id),
             ),
           );
         },

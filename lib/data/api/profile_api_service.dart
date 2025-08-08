@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter_founders/models/user_short.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_founders/presentation/profile/models/profile_model.dart';
 import 'dio_client.dart';
@@ -6,6 +7,11 @@ import 'dio_client.dart';
 class ProfileApiService {
   final Dio _dio = DioClient().dio;
   final _storage = FlutterSecureStorage();
+
+  Future<String?> _getToken() async {
+  return await _storage.read(key: 'auth_token');
+}
+
 
   Future<ProfileModel> getMyProfile() async {
     print('📡 [GET] /users/profile');
@@ -60,4 +66,21 @@ class ProfileApiService {
 
     print('✅ Update response status: ${response.statusCode}');
   }
+  
+  Future<List<UserShort>> searchUsers({String? query}) async {
+  final token = await _getToken();
+  final response = await _dio.get(
+    '/users',
+    queryParameters: {
+      'cursor': 0,
+      'limit': 50,
+      if (query != null && query.isNotEmpty) 'fio': query,
+    },
+    options: Options(headers: {'Authorization': token}),
+  );
+
+  final data = response.data['data'] as List;
+  return data.map((e) => UserShort.fromJson(e)).toList();
+}
+
 }

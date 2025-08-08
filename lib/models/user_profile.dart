@@ -8,6 +8,10 @@ class UserProfile {
   final String? companyName;
   final String? companyIndustry;
   final String? companyInfo;
+  final List<String> tags;
+  final List<String>? subTags;
+  final String countryFlag;
+
 
   UserProfile({
     required this.id,
@@ -18,6 +22,9 @@ class UserProfile {
     this.companyName,
     this.companyIndustry,
     this.companyInfo,
+    required this.tags,
+    this.subTags,
+    required this.countryFlag,
   });
 
   factory UserProfile.fromJson(Map<String, dynamic> json) {
@@ -32,6 +39,9 @@ class UserProfile {
       companyName: json['companyName'],
       companyIndustry: json['companyIndustry'],
       companyInfo: json['companyInfo'],
+      tags: [],
+      subTags: null,
+      countryFlag: '🇷🇺',
     );
   }
 }

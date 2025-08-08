@@ -55,7 +55,7 @@ class ProfileHeader extends StatelessWidget {
             backgroundImage:
                 (profile.avatarUrl != null && profile.avatarUrl!.isNotEmpty)
                 ? NetworkImage(profile.avatarUrl!) as ImageProvider
-                : const AssetImage('assets/images/default_avatar.png'),
+                : const AssetImage('assets/images/image 1.png'),
           ),
         ),
         const SizedBox(height: 12),

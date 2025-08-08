@@ -2,12 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_founders/presentation/investment/bloc/investment_bloc.dart';
 import 'package:flutter_founders/presentation/investment/bloc/investment_state.dart';
-import 'package:flutter_founders/models/investment_model.dart';
 import 'package:flutter_founders/presentation/investment/widgets/investment_card.dart';
 
-class InvestmentPageContent extends StatelessWidget {
+class InvestmentPageContent extends StatefulWidget {
   const InvestmentPageContent({super.key});
 
+  @override
+  State<InvestmentPageContent> createState() => _InvestmentPageContentState();
+}
+
+class _InvestmentPageContentState extends State<InvestmentPageContent> {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<InvestmentBloc, InvestmentState>(
