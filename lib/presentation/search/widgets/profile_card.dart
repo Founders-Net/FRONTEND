@@ -4,17 +4,16 @@ import 'package:flutter_founders/presentation/profile/other_profile_screen.dart'
 
 class ProfileCard extends StatelessWidget {
   final UserProfile profile;
-
   const ProfileCard({super.key, required this.profile});
 
   @override
   Widget build(BuildContext context) {
+    final countryText = (profile.country ?? '').trim().isEmpty ? null : profile.country!.trim();
+
     return GestureDetector(
       onTap: () {
         Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) => OtherProfileScreen(userId: profile.id),
-          ),
+          MaterialPageRoute(builder: (_) => OtherProfileScreen(userId: profile.id)),
         );
       },
       child: Container(
@@ -27,7 +26,7 @@ class ProfileCard extends StatelessWidget {
           children: [
             CircleAvatar(
               radius: 26,
-              backgroundImage: profile.userAvatar != null && profile.userAvatar!.isNotEmpty
+              backgroundImage: (profile.userAvatar != null && profile.userAvatar!.isNotEmpty)
                   ? NetworkImage(profile.userAvatar!)
                   : const AssetImage('assets/images/image 1.png') as ImageProvider,
             ),
@@ -36,18 +35,37 @@ class ProfileCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    '${profile.userName} ${profile.countryFlag}',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      fontFamily: 'InriaSans',
-                    ),
-                    overflow: TextOverflow.ellipsis,
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          profile.userName,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                            fontFamily: 'InriaSans',
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      if (countryText != null) ...[
+                        const SizedBox(width: 6),
+                        Text(
+                          countryText,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Colors.white70,
+                            fontFamily: 'InriaSans',
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ],
                   ),
                   const SizedBox(height: 2),
-                  if (profile.companyName != null && profile.companyName!.isNotEmpty)
+
+                  if ((profile.companyName ?? '').isNotEmpty)
                     Text(
                       profile.companyName!,
                       style: const TextStyle(
@@ -56,7 +74,9 @@ class ProfileCard extends StatelessWidget {
                         fontFamily: 'InriaSans',
                       ),
                     ),
+
                   const SizedBox(height: 8),
+
                   if (profile.tags.isNotEmpty)
                     Wrap(
                       spacing: 6,
@@ -65,46 +85,11 @@ class ProfileCard extends StatelessWidget {
                         final color = _getTagColor(tag);
                         return Container(
                           padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 10),
-                          decoration: BoxDecoration(
-                            color: color,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            tag,
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: Colors.white,
-                              fontFamily: 'InriaSans',
-                            ),
-                          ),
+                          decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(20)),
+                          child: Text(tag, style: const TextStyle(fontSize: 12, color: Colors.white, fontFamily: 'InriaSans')),
                         );
                       }).toList(),
                     ),
-                  if (profile.subTags != null && profile.subTags!.isNotEmpty) ...[
-                    const SizedBox(height: 6),
-                    Wrap(
-                      spacing: 6,
-                      runSpacing: 6,
-                      children: profile.subTags!.map((subTag) {
-                        final color = _getSubTagColor(subTag);
-                        return Container(
-                          padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 10),
-                          decoration: BoxDecoration(
-                            color: color,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            subTag,
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: Colors.white,
-                              fontFamily: 'InriaSans',
-                            ),
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  ],
                 ],
               ),
             ),
@@ -114,46 +99,28 @@ class ProfileCard extends StatelessWidget {
     );
   }
 
-  // 🏷️ Tag color
   Color _getTagColor(String tag) {
     switch (tag.toLowerCase()) {
-      case 'it':
-        return Colors.blueAccent;
-      case 'маркетинг':
-        return Colors.redAccent;
-      case 'бизнес модели':
-        return Colors.deepPurple;
-      case 'недвижимость':
-        return Colors.brown;
-      case 'финансы':
-        return Colors.green;
-      case 'медиа':
-        return Colors.orange;
-      case 'консалтинг':
-        return Colors.teal;
-      case 'здравоохранение':
-        return Colors.pink;
-      case 'логистика':
-        return Colors.amber;
-      case 'юриспруденция':
-        return Colors.indigo;
-      case 'образование':
-        return Colors.lightBlueAccent;
-      case 'услуги':
-        return Colors.cyan;
-      case 'производство':
-        return Colors.grey;
-      case 'вэд':
-        return Colors.deepOrangeAccent;
-      default:
-        return Colors.grey.shade800;
+      case 'it': return Colors.blueAccent;
+      case 'маркетинг': return Colors.redAccent;
+      case 'бизнес модели': return Colors.deepPurple;
+      case 'недвижимость': return Colors.brown;
+      case 'финансы': return Colors.green;
+      case 'медиа': return Colors.orange;
+      case 'консалтинг': return Colors.teal;
+      case 'здравоохранение': return Colors.pink;
+      case 'логистика': return Colors.amber;
+      case 'юриспруденция': return Colors.indigo;
+      case 'образование': return Colors.lightBlueAccent;
+      case 'услуги': return Colors.cyan;
+      case 'производство': return Colors.grey;
+      case 'вэд': return Colors.deepOrangeAccent;
+      default: return Colors.grey.shade800;
     }
   }
 
-  // 🏷️ Sub-tag color
-  Color _getSubTagColor(String subTag) {
+  /*  Color _getSubTagColor(String subTag) {
     final lower = subTag.toLowerCase();
-
     if (lower == 'frontend') return Colors.blueAccent;
     if (lower == 'backend') return Colors.lightBlueAccent;
     if (lower == 'qa') return Colors.green;
@@ -209,7 +176,6 @@ class ProfileCard extends StatelessWidget {
     if (lower == 'экспорт') return Colors.deepOrangeAccent;
     if (lower == 'сертификация') return Colors.indigo;
     if (lower == 'контракты') return Colors.green;
-
     return Colors.grey.shade700;
-  }
+  }*/
 }

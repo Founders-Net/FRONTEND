@@ -4,10 +4,12 @@ class UserShort {
   final String? userAvatar;
   final String? companyName;
   final String? companyIndustry;
-  final List<String> countries;
+  /*final List<String> countries;
   final List<String> mainTags;
   final List<String> subTags;
-  final bool isFoundersOnly;
+  final bool isFoundersOnly;*/
+  final String? country;      
+  final List<String> tags;
 
   UserShort({
     required this.id,
@@ -15,10 +17,13 @@ class UserShort {
     this.userAvatar,
     this.companyName,
     this.companyIndustry,
-    required this.countries,
+    this.country,
+    required this.tags,
+    /*required this.countries,
     required this.mainTags,
     required this.subTags,
-    required this.isFoundersOnly,
+    required this.isFoundersOnly,*/
+
   });
 
   factory UserShort.fromJson(Map<String, dynamic> json) {
@@ -26,12 +31,14 @@ class UserShort {
       id: json['id'],
       userName: json['userName'],
       userAvatar: json['userAvatar'],
+      country: json['country'],
+      tags: List<String>.from(json['tags'] ?? []),
       companyName: json['companyName'],
       companyIndustry: json['companyIndustry'],
-      countries: List<String>.from(json['countries'] ?? []),
+      /*countries: List<String>.from(json['countries'] ?? []),
       mainTags: List<String>.from(json['mainTags'] ?? []),
       subTags: List<String>.from(json['subTags'] ?? []),
-      isFoundersOnly: json['isFoundersOnly'] ?? false,
+      isFoundersOnly: json['isFoundersOnly'] ?? false,*/
     );
   }
 }

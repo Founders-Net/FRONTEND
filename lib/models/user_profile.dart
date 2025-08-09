@@ -9,8 +9,9 @@ class UserProfile {
   final String? companyIndustry;
   final String? companyInfo;
   final List<String> tags;
-  final List<String>? subTags;
-  final String countryFlag;
+  /*final List<String>? subTags;
+  final String countryFlag;*/
+  final String? country;
 
 
   UserProfile({
@@ -22,9 +23,11 @@ class UserProfile {
     this.companyName,
     this.companyIndustry,
     this.companyInfo,
-    required this.tags,
+    /*required this.tags,
     this.subTags,
-    required this.countryFlag,
+    required this.countryFlag,*/
+    this.tags = const [],
+    this.country,
   });
 
   factory UserProfile.fromJson(Map<String, dynamic> json) {
@@ -39,9 +42,11 @@ class UserProfile {
       companyName: json['companyName'],
       companyIndustry: json['companyIndustry'],
       companyInfo: json['companyInfo'],
-      tags: [],
+      /*tags: [],
       subTags: null,
-      countryFlag: '🇷🇺',
+      countryFlag: '🇷🇺',*/
+      tags: List<String>.from(json['tags'] ?? []),   // <- use API tags
+      country: json['country'],
     );
   }
 }

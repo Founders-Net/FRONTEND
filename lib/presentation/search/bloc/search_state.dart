@@ -1,24 +1,28 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_founders/models/user_profile.dart';
+import 'package:flutter_founders/models/tag_item.dart';
 
 class SearchState extends Equatable {
   final bool isLoading;
   final String query;
   final List<UserProfile> profiles;
-  final List<String> selectedCountries;
-  final List<String> selectedMainTags;
-  final List<String> selectedSubTags;
-  final bool isFoundersOnly;
+
+  // Filters (server-driven)
+  final String? country;               // single country; null => all
+  final Set<String> selectedTags;      // flattened (main + sub)
+
+  // Options for UI (from /api/tags)
+  final List<TagItem> availableTags;   // e.g., [TagItem('IT',['Frontend','Backend']), ...]
+
   final String? error;
 
   const SearchState({
     required this.isLoading,
     required this.query,
     required this.profiles,
-    required this.selectedCountries,
-    required this.selectedMainTags,
-    required this.selectedSubTags,
-    required this.isFoundersOnly,
+    this.country,
+    this.selectedTags = const {},
+    this.availableTags = const [],
     this.error,
   });
 
@@ -26,10 +30,9 @@ class SearchState extends Equatable {
         isLoading: false,
         query: '',
         profiles: [],
-        selectedCountries: [],
-        selectedMainTags: [],
-        selectedSubTags: [],
-        isFoundersOnly: false,
+        country: null,
+        selectedTags: {},
+        availableTags: [],
         error: null,
       );
 
@@ -37,20 +40,18 @@ class SearchState extends Equatable {
     bool? isLoading,
     String? query,
     List<UserProfile>? profiles,
-    List<String>? selectedCountries,
-    List<String>? selectedMainTags,
-    List<String>? selectedSubTags,
-    bool? isFoundersOnly,
+    String? country,
+    Set<String>? selectedTags,
+    List<TagItem>? availableTags,
     String? error,
   }) {
     return SearchState(
       isLoading: isLoading ?? this.isLoading,
       query: query ?? this.query,
       profiles: profiles ?? this.profiles,
-      selectedCountries: selectedCountries ?? this.selectedCountries,
-      selectedMainTags: selectedMainTags ?? this.selectedMainTags,
-      selectedSubTags: selectedSubTags ?? this.selectedSubTags,
-      isFoundersOnly: isFoundersOnly ?? this.isFoundersOnly,
+      country: country == '' ? null : (country ?? this.country),
+      selectedTags: selectedTags ?? this.selectedTags,
+      availableTags: availableTags ?? this.availableTags,
       error: error,
     );
   }
@@ -60,10 +61,9 @@ class SearchState extends Equatable {
         isLoading,
         query,
         profiles,
-        selectedCountries,
-        selectedMainTags,
-        selectedSubTags,
-        isFoundersOnly,
+        country,
+        selectedTags,
+        availableTags,
         error,
       ];
 }
