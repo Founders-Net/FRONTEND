@@ -5,8 +5,9 @@ import '../other_profile_screen.dart';
 
 class PartnersList extends StatelessWidget {
   final List<PartnerModel> partners;
+  final VoidCallback? onReturnTrue; // ✅ جديد: إشعار الأب بالتحديث
 
-  const PartnersList({super.key, required this.partners});
+  const PartnersList({super.key, required this.partners, this.onReturnTrue});
 
   @override
   Widget build(BuildContext context) {
@@ -15,13 +16,17 @@ class PartnersList extends StatelessWidget {
         return Column(
           children: [
             GestureDetector(
-              onTap: () {
-                Navigator.push(
+              onTap: () async {
+                final result = await Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (_) => OtherProfileScreen(userId: partner.id),
                   ),
                 );
+                if (result == true) {
+                  // ✅ نبه الأب إنه يعمل ريفريش
+                  onReturnTrue?.call();
+                }
               },
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 12),

@@ -1,17 +1,15 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_founders/models/tag_item.dart';
-import 'package:flutter_founders/models/user_short.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_founders/presentation/profile/models/profile_model.dart';
 import 'dio_client.dart';
 
 class ProfileApiService {
   final Dio _dio = DioClient().dio;
-  final _storage = FlutterSecureStorage();
+  final _storage = const FlutterSecureStorage();
 
   Future<String?> _getToken() async {
-  return await _storage.read(key: 'auth_token');
+    return await _storage.read(key: 'auth_token');
   }
 
   Future<ProfileModel> getMyProfile() async {
@@ -29,12 +27,10 @@ class ProfileApiService {
   }
 
   Future<void> updateCompany(int userId, int companyId) async {
-    debugPrint(
-      '🛠️ [PUT] /users/update with data: {id: $userId, companyId: $companyId}',
-    );
+    debugPrint('🛠️ [PUT] /users/update with data: {id: $userId, companyId: $companyId}');
     final response = await _dio.put(
       '/users/update',
-      data: {"id": userId, "companyId": companyId},
+      data: {"id": userId, "companyId": companyId}, // ✅ شيلنا $companyId الغلط
     );
     debugPrint('✅ Update response status: ${response.statusCode}');
   }
@@ -42,71 +38,54 @@ class ProfileApiService {
   Future<void> updateProfile(ProfileModel profile) async {
     final token = await _storage.read(key: 'auth_token');
 
-    final Map<String, dynamic> updateData = {
+    final Map<String, dynamic> body = {
       "id": profile.id,
-      "fio": profile.name,
-      "email": profile.email ?? "",
-      "info": profile.bio ?? "",
-      "companyName": profile.companyName ?? "",
-      "companyIndustry": profile.industry ?? "",
-      "companyInfo": profile.companyInfo ?? "",
+      "fio": profile.name.trim(),
+      "email": (profile.email ?? '').trim(),
+      "info": (profile.bio ?? '').trim(),
+      "companyName": (profile.companyName ?? '').trim(),
+      "companyIndustry": (profile.industry ?? '').trim(),
+      "companyInfo": (profile.companyInfo ?? '').trim(),
+      "userPhone": (profile.phone ?? '').trim(),
+      // لو هتضيف country/tags هنا بعد موافقة الباك إند:
+      // "country": profile.country,
+      // "tags": profile.tags,
     };
 
-    debugPrint('🛠️ [PUT] /users/update with data: $updateData');
+    // 🧹 امسح الفاضي
+    body.removeWhere((k, v) => v == null || (v is String && v.isEmpty));
 
-    final response = await _dio.put(
-      '/users/update',
-      data: updateData,
-      options: Options(
-        headers: {
-          'Authorization': '$token',
-          'Content-Type': 'application/json',
-        },
-      ),
-    );
+    // Authorization header
+    String? authHeader = token;
+    if (authHeader != null &&
+        authHeader.isNotEmpty &&
+        !authHeader.toLowerCase().startsWith('bearer ')) {
+      authHeader = 'Bearer $authHeader';
+    }
 
-    debugPrint('✅ Update response status: ${response.statusCode}');
+    try {
+      debugPrint('🛠️ [PUT] /users/update\nBody: $body');
+      final response = await _dio.put(
+        '/users/update',
+        data: body,
+        options: Options(
+          headers: {
+            if (authHeader != null && authHeader.isNotEmpty)
+              'Authorization': authHeader,
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+      debugPrint('✅ Update response status: ${response.statusCode}');
+      debugPrint('✅ Update response data: ${response.data}');
+    } on DioException catch (e) {
+      debugPrint('❌ DioException: ${e.message}');
+      debugPrint('❌ Status: ${e.response?.statusCode}');
+      debugPrint('❌ Response data: ${e.response?.data}');
+      rethrow;
+    } catch (e) {
+      debugPrint('❌ Unknown error: $e');
+      rethrow;
+    }
   }
-  
-  Future<List<UserShort>> searchUsers({
-    String? query,
-    String? country,         // <- single country
-    List<String>? tags,      // <- flat list (main or sub)
-    int cursor = 0,
-    int limit = 50,
-  }) async {
-  final token = await _getToken();
-  final response = await _dio.get(
-    '/users',
-    queryParameters: {
-      'cursor': cursor,
-      'limit': limit,
-      if (query != null && query.isNotEmpty) 'fio': query,
-      if (country != null && country.isNotEmpty) 'country': country,
-      if (tags != null && tags.isNotEmpty) 'tags': tags,
-    },
-    options: Options(headers: {'Authorization': token}),
-  );
-
-  final data = (response.data['data'] as List);
-  return data.map((e) => UserShort.fromJson(e)).toList();
-}
-
-  Future<List<TagItem>> getAvailableTags() async {
-    final token = await _getToken();
-    final res = await _dio.get(
-      '/tags',
-      options: Options(headers: {'Authorization': token}),
-    );
-
-    final raw = res.data['tags'] as List<dynamic>? ?? const [];
-    return raw.map((t) {
-      final name = (t['name'] ?? '').toString();
-      final subtagsRaw = (t['subtags'] as List<dynamic>? ?? const []);
-      final subtags = subtagsRaw.map((s) => (s['name'] ?? '').toString()).toList();
-      return TagItem(name, subtags);
-    }).toList();
-  }
-
-
 }

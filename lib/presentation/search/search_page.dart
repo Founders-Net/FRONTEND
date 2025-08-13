@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_founders/data/api/profile_api_service.dart';
+import 'package:flutter_founders/data/api/search_api_service.dart';
 import 'bloc/search_bloc.dart';
 import 'bloc/search_event.dart';
 import 'widgets/search_bar_with_filter.dart';
@@ -13,7 +13,9 @@ class SearchPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => SearchBloc(apiService: ProfileApiService())..add(LoadInitialProfiles()),
+      create: (_) =>
+          SearchBloc(apiService: SearchApiService())
+            ..add(LoadInitialProfiles()),
       child: const _SearchView(),
     );
   }
@@ -30,15 +32,14 @@ class _SearchViewState extends State<_SearchView> {
   final TextEditingController _controller = TextEditingController();
 
   void _openFilter() {
-  final bloc = context.read<SearchBloc>(); // ✅ grab the bloc from context
-  showModalBottomSheet(
-    context: context,
-    builder: (_) => FilterBottomSheet(searchBloc: bloc), // ✅ pass it here
-    backgroundColor: Colors.black,
-    isScrollControlled: true,
-  );
-}
-
+    final bloc = context.read<SearchBloc>(); // ✅ grab the bloc from context
+    showModalBottomSheet(
+      context: context,
+      builder: (_) => FilterBottomSheet(searchBloc: bloc), // ✅ pass it here
+      backgroundColor: Colors.black,
+      isScrollControlled: true,
+    );
+  }
 
   void _onTextChanged(String text) {
     context.read<SearchBloc>().add(SearchQueryChanged(text));

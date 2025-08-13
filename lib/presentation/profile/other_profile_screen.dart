@@ -1,9 +1,10 @@
+// lib/presentation/profile/other_profile_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_founders/presentation/profile/bloc/profile_bloc.dart';
 import 'package:flutter_founders/presentation/profile/bloc/profile_event.dart';
 import 'package:flutter_founders/presentation/profile/bloc/profile_state.dart';
-import 'package:flutter_founders/presentation/profile/bloc/partners_bloc.dart';
+import 'package:flutter_founders/presentation/profile/partners/bloc/partners_bloc.dart';
 import 'package:flutter_founders/presentation/profile/widgets/partners_summary_button.dart';
 import 'package:flutter_founders/presentation/profile/widgets/profile_header.dart';
 import 'package:flutter_founders/presentation/profile/widgets/section_card.dart';
@@ -77,7 +78,13 @@ class OtherProfileScreen extends StatelessWidget {
                       SectionCard(content: profile.companyInfo ?? ''),
                       const SizedBox(height: 24),
 
-                      AddPartnerButton(userId: userId),
+                      // ✅ تعديل هنا: عند نجاح الإضافة نرجع true
+                      AddPartnerButton(
+                        userId: userId,
+                        onSuccess: () {
+                          Navigator.pop(context, true);
+                        },
+                      ),
                       const SizedBox(height: 12),
 
                       const ReportUserLabel(),

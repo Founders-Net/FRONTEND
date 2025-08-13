@@ -4,15 +4,18 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_founders/presentation/profile/bloc/profile_bloc.dart';
 import 'package:flutter_founders/presentation/profile/bloc/profile_event.dart';
 import 'package:flutter_founders/presentation/profile/bloc/profile_state.dart';
-import 'package:flutter_founders/presentation/profile/bloc/partners_bloc.dart';
-import 'package:flutter_founders/presentation/profile/bloc/partners_event.dart';
-import 'package:flutter_founders/presentation/profile/bloc/partners_state.dart';
+import 'package:flutter_founders/presentation/profile/partners/bloc/partners_bloc.dart';
+import 'package:flutter_founders/presentation/profile/partners/bloc/partners_event.dart';
+import 'package:flutter_founders/presentation/profile/partners/bloc/partners_state.dart';
 import 'package:flutter_founders/presentation/profile/widgets/profile_header.dart';
 import 'package:flutter_founders/presentation/profile/widgets/section_card.dart';
 import 'package:flutter_founders/presentation/profile/widgets/partners_list.dart';
 import 'package:flutter_founders/data/api/profile_api_service.dart';
 import 'package:flutter_founders/data/api/partners_api_service.dart';
 import 'package:google_fonts/google_fonts.dart';
+
+// ✅ شاشة التبويبات الخاصة بالشركاء
+import 'package:flutter_founders/presentation/profile/partners/partners_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -36,7 +39,9 @@ class ProfileScreen extends StatelessWidget {
           child: BlocListener<ProfileBloc, ProfileState>(
             listener: (context, state) {
               if (state is ProfileLoaded) {
-                debugPrint("📣 Listener got new profile: ${state.profile.toJson()}");
+                debugPrint(
+                  "📣 Listener got new profile: ${state.profile.toJson()}",
+                );
               }
             },
             child: BlocBuilder<ProfileBloc, ProfileState>(
@@ -65,6 +70,7 @@ class ProfileScreen extends StatelessWidget {
                           },
                         ),
                         const SizedBox(height: 24),
+
                         // زر "Добавить компанию"
                         SizedBox(
                           width: double.infinity,
@@ -95,56 +101,94 @@ class ProfileScreen extends StatelessWidget {
                             ),
                           ),
                         ),
+
                         const SizedBox(height: 24),
                         Text(
                           'О себе',
                           style: GoogleFonts.inriaSans(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
-                            color: Color(0xFF808080),
+                            color: const Color(0xFF808080),
                           ),
                         ),
                         const SizedBox(height: 8),
                         SectionCard(content: profile.bio ?? ''),
+
                         const SizedBox(height: 16),
                         Text(
                           'О компании',
                           style: GoogleFonts.inriaSans(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
-                            color: Color(0xFF808080),
+                            color: const Color(0xFF808080),
                           ),
                         ),
                         const SizedBox(height: 8),
                         SectionCard(content: profile.companyInfo ?? ''),
+
                         const SizedBox(height: 16),
-                        Text(
-                          'Партнёры',
-                          style: GoogleFonts.inriaSans(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFF808080),
+
+                        // 🔗 نص "Партнёры" لفتح PartnersScreen (بدون تعديل على التصميم)
+                        GestureDetector(
+                          onTap: () async {
+                            // ⬅️ خُد مراجع الـ Blocs قبل الـ await لتجنب مشكلة deactivated ancestor
+                            final partnersBloc = context.read<PartnersBloc>();
+                            final profileBloc = context.read<ProfileBloc>();
+
+                            await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => BlocProvider.value(
+                                  value: partnersBloc,
+                                  child: const PartnersScreen(),
+                                ),
+                              ),
+                            );
+
+                            // بعد الرجوع: حدث القوائم مع نفس المراجع
+                            partnersBloc.add(LoadPartners());
+                            profileBloc.add(LoadCurrentProfile());
+                          },
+                          child: Text(
+                            'Партнёры',
+                            style: GoogleFonts.inriaSans(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: const Color(0xFF808080),
+                            ),
                           ),
                         ),
                         const SizedBox(height: 8),
+
                         BlocBuilder<PartnersBloc, PartnersState>(
-                          builder: (context, state) {
-                            if (state.isLoading) {
+                          builder: (context, pState) {
+                            if (pState.isLoadingPartners) {
                               return const Center(
                                 child: CircularProgressIndicator(
                                   color: Colors.white,
                                 ),
                               );
-                            } else if (state.error != null) {
-                              return SectionCard(
+                            } else if (pState.errorPartners != null) {
+                              return const SectionCard(
                                 content: 'Ошибка при загрузке партнёров',
                               );
-                            } else if (state.partners.isEmpty) {
+                            } else if (pState.partners.isEmpty) {
                               return const SectionCard(
                                 content: 'Нет партнёров',
                               );
                             } else {
-                              return PartnersList(partners: state.partners);
+                              // نفس التصميم، ومع إشارة تحديث للأب عند الرجوع
+                              return PartnersList(
+                                partners: pState.partners,
+                                onReturnTrue: () {
+                                  context.read<PartnersBloc>().add(
+                                    LoadPartners(),
+                                  );
+                                  context.read<ProfileBloc>().add(
+                                    LoadCurrentProfile(),
+                                  );
+                                },
+                              );
                             }
                           },
                         ),

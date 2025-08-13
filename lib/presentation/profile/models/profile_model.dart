@@ -11,6 +11,10 @@ class ProfileModel {
   final bool? isPartner;
   final List<int>? userPartners;
 
+  // ✅ الحقول الجديدة
+  final String country; // الدولة
+  final List<String> tags; // التاجات
+
   ProfileModel({
     required this.id,
     required this.name,
@@ -23,6 +27,10 @@ class ProfileModel {
     this.email,
     this.isPartner,
     this.userPartners,
+
+    // ✅ قيم افتراضية
+    this.country = "Россия",
+    this.tags = const ["IT"],
   });
 
   factory ProfileModel.fromJson(Map<String, dynamic> json) {
@@ -38,6 +46,8 @@ class ProfileModel {
       email: json['userEmail'],
       isPartner: json['isPartner'] ?? false,
       userPartners: (json['userPartners'] as List?)?.cast<int>() ?? [],
+      country: json['country'] ?? "Россия",
+      tags: (json['tags'] as List?)?.cast<String>() ?? ["IT"],
     );
   }
 
@@ -54,6 +64,8 @@ class ProfileModel {
       'userEmail': email,
       'isPartner': isPartner,
       'userPartners': userPartners,
+      'country': country,
+      'tags': tags,
     };
   }
 }

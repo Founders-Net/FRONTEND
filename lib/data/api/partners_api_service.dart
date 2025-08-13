@@ -1,5 +1,4 @@
 // lib/data/api/partners_api_service.dart
-
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_founders/data/api/dio_client.dart';
@@ -12,58 +11,111 @@ class PartnersApiService {
   Future<List<PartnerModel>> getPartners() async {
     try {
       final response = await _dio.get('/partners/');
-      debugPrint('✅ response: ${response.data.runtimeType}');
-      debugPrint('✅ response content: ${response.data}');
-
-      final data = response.data['data'] as List; // ✅
+      debugPrint(
+        '✅ [GET] /partners/ -> ${response.statusCode} (${response.requestOptions.uri})',
+      );
+      final data = response.data['data'] as List? ?? const [];
       return data.map((e) => PartnerModel.fromJson(e)).toList();
-    } catch (e) {
-      debugPrint('❌ getPartners error: $e');
+    } on DioException catch (e) {
+      debugPrint(
+        '❌ getPartners error ${e.response?.statusCode} (${e.requestOptions.uri}) -> ${e.response?.data}',
+      );
       rethrow;
     }
   }
 
   Future<void> sendPartnerRequest(int id) async {
     try {
-      await _dio.post('/partners/$id');
-    } catch (e) {
+      final res = await _dio.post('/partners/$id');
+      debugPrint(
+        '✅ [POST] /partners/$id -> ${res.statusCode} (${res.requestOptions.uri})',
+      );
+    } on DioException catch (e) {
+      debugPrint(
+        '❌ sendPartnerRequest ${e.response?.statusCode} (${e.requestOptions.uri}) -> ${e.response?.data}',
+      );
       rethrow;
     }
   }
 
-  Future<void> respondToRequest(int id, bool accepted) async {
+  Future<void> respondToRequest(int id, String status) async {
     try {
-      await _dio.put('/partners/$id/respond', data: {"accepted": accepted});
-    } catch (e) {
+      final res = await _dio.put(
+        '/partners/$id/respond',
+        data: {"status": status},
+      );
+      debugPrint(
+        '✅ [PUT] /partners/$id/respond -> ${res.statusCode} (${res.requestOptions.uri})',
+      );
+    } on DioException catch (e) {
+      debugPrint(
+        '❌ respondToRequest ${e.response?.statusCode} (${e.requestOptions.uri}) -> ${e.response?.data}',
+      );
       rethrow;
     }
   }
 
   Future<void> deletePartner(int id) async {
     try {
-      await _dio.delete('/partners/$id');
-    } catch (e) {
+      final res = await _dio.delete('/partners/$id');
+      debugPrint(
+        '✅ [DELETE] /partners/$id -> ${res.statusCode} (${res.requestOptions.uri})',
+      );
+    } on DioException catch (e) {
+      debugPrint(
+        '❌ deletePartner ${e.response?.statusCode} (${e.requestOptions.uri}) -> ${e.response?.data}',
+      );
       rethrow;
     }
   }
 
   Future<List<PartnerRequestModel>> getIncomingRequests() async {
     try {
-      final response = await _dio.get('/partners/requests/incoming');
-      final data = response.data['data'] as List;
+      final res = await _dio.get('/partners/requests/incoming');
+      debugPrint(
+        '✅ [GET] /partners/requests/incoming -> ${res.statusCode} (${res.requestOptions.uri})',
+      );
+      final data = res.data['data'] as List? ?? const [];
       return data.map((e) => PartnerRequestModel.fromJson(e)).toList();
-    } catch (e) {
+    } on DioException catch (e) {
+      // 👇 لو السيرفر بيرجع 404 لما مفيش طلبات، نرجع list فاضية
+      if (e.response?.statusCode == 404) {
+        debugPrint(
+          'ℹ️ incoming 404 (no data) -> return []  (${e.requestOptions.uri})',
+        );
+        return [];
+      }
+      debugPrint(
+        '❌ getIncomingRequests ${e.response?.statusCode} (${e.requestOptions.uri}) -> ${e.response?.data}',
+      );
       rethrow;
     }
   }
 
   Future<List<PartnerRequestModel>> getOutgoingRequests() async {
     try {
-      final response = await _dio.get('/partners/requests/outgoing');
-      final data = response.data['data'] as List;
+      final res = await _dio.get('/partners/requests/outgoing');
+      debugPrint(
+        '✅ [GET] /partners/requests/outgoing -> ${res.statusCode} (${res.requestOptions.uri})',
+      );
+      final data = res.data['data'] as List? ?? const [];
       return data.map((e) => PartnerRequestModel.fromJson(e)).toList();
-    } catch (e) {
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 404) {
+        debugPrint(
+          'ℹ️ outgoing 404 (no data) -> return []  (${e.requestOptions.uri})',
+        );
+        return [];
+      }
+      debugPrint(
+        '❌ getOutgoingRequests ${e.response?.statusCode} (${e.requestOptions.uri}) -> ${e.response?.data}',
+      );
       rethrow;
     }
+  }
+
+  Future<void> cancelOutgoingRequest(int requestId) async {
+    // راجع مع الباك-إند اسم الـ endpoint لو مختلف
+    await _dio.delete('/partners/requests/outgoing/$requestId');
   }
 }
