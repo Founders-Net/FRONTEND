@@ -115,7 +115,10 @@ class PartnersApiService {
   }
 
   Future<void> cancelOutgoingRequest(int requestId) async {
-    // راجع مع الباك-إند اسم الـ endpoint لو مختلف
-    await _dio.delete('/partners/requests/outgoing/$requestId');
+    try {
+      await _dio.delete('/partners/$requestId');
+    } catch (e) {
+      rethrow;
+    }
   }
 }

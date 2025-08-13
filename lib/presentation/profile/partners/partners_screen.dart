@@ -305,9 +305,9 @@ class _OutgoingTab extends StatelessWidget {
               trailing: TextButton(
                 onPressed: () {
                   // ✅ إلغاء الطلب الصادر باستخدام requestId الحقيقي
-                  context
-                      .read<PartnersBloc>()
-                      .add(CancelOutgoingRequest(req.id));
+                  context.read<PartnersBloc>().add(
+                        CancelOutgoingRequest(req.id),
+                      );
                 },
                 child: const Text('Отменить'),
               ),

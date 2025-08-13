@@ -37,7 +37,7 @@ class RespondIncomingRequest extends PartnersEvent {
 }
 
 class CancelOutgoingRequest extends PartnersEvent {
-  final int requestId; // <- ده هو ID بتاع الطلب نفسه (مش userId)
+  final int requestId;
   const CancelOutgoingRequest(this.requestId);
 
   @override

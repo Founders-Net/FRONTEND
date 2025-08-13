@@ -32,10 +32,9 @@ class PartnersBloc extends Bloc<PartnersEvent, PartnersState> {
       emit(state.copyWith(partners: partners, isLoadingPartners: false));
     } catch (e) {
       debugPrint('❌ Error loading partners: $e');
-      emit(state.copyWith(
-        errorPartners: e.toString(),
-        isLoadingPartners: false,
-      ));
+      emit(
+        state.copyWith(errorPartners: e.toString(), isLoadingPartners: false),
+      );
     }
   }
 
@@ -78,10 +77,9 @@ class PartnersBloc extends Bloc<PartnersEvent, PartnersState> {
       final list = await apiService.getIncomingRequests();
       emit(state.copyWith(incoming: list, isLoadingIncoming: false));
     } catch (e) {
-      emit(state.copyWith(
-        errorIncoming: e.toString(),
-        isLoadingIncoming: false,
-      ));
+      emit(
+        state.copyWith(errorIncoming: e.toString(), isLoadingIncoming: false),
+      );
     }
   }
 
@@ -95,10 +93,9 @@ class PartnersBloc extends Bloc<PartnersEvent, PartnersState> {
       final list = await apiService.getOutgoingRequests();
       emit(state.copyWith(outgoing: list, isLoadingOutgoing: false));
     } catch (e) {
-      emit(state.copyWith(
-        errorOutgoing: e.toString(),
-        isLoadingOutgoing: false,
-      ));
+      emit(
+        state.copyWith(errorOutgoing: e.toString(), isLoadingOutgoing: false),
+      );
     }
   }
 
@@ -108,7 +105,10 @@ class PartnersBloc extends Bloc<PartnersEvent, PartnersState> {
     Emitter<PartnersState> emit,
   ) async {
     try {
-      await apiService.respondToRequest(event.id, event.status); // "accepted" | "rejected"
+      await apiService.respondToRequest(
+        event.id,
+        event.status,
+      ); // "accepted" | "rejected"
       // بعد القبول: حدّث الوارد + الشركاء
       add(LoadIncomingRequests());
       if (event.status == 'accepted') {
@@ -125,7 +125,7 @@ class PartnersBloc extends Bloc<PartnersEvent, PartnersState> {
     Emitter<PartnersState> emit,
   ) async {
     try {
-      // ممكن نحط لودينج خفيف
+      // ممكن نحط لودينج خفيف لو حابب، هنا بنصفّر الخطأ فقط
       emit(state.copyWith(errorOutgoing: null));
       await apiService.cancelOutgoingRequest(event.requestId);
       // بعد الإلغاء: حمّل الصادر من جديد
