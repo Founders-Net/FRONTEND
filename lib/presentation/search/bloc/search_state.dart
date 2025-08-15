@@ -7,13 +7,14 @@ class SearchState extends Equatable {
   final String query;
   final List<UserProfile> profiles;
 
-  // Filters (server-driven)
+  // Server-driven filters
   final String? country;               // single country; null => all
   final Set<String> selectedTags;      // flattened (main + sub)
 
   // Options for UI (from /api/tags)
   final List<TagItem> availableTags;   // e.g., [TagItem('IT',['Frontend','Backend']), ...]
 
+  // Optional: last error (human friendly)
   final String? error;
 
   const SearchState({

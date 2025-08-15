@@ -13,15 +13,20 @@ class FilterBottomSheet extends StatefulWidget {
 }
 
 class _FilterBottomSheetState extends State<FilterBottomSheet> {
-  List<String> selectedCountries = [];
+  // ✅ API expects a single country string (or omit). Use String? instead of List<String>.
+  String? selectedCountry;
+
+  // Tags
   List<String> selectedMainTags = [];
   List<String> selectedSubTags = [];
   Set<String> expandedTags = {};
+
+  // No backend filter for this yet; keep UI toggle but it won't affect the request.
   bool isFoundersOnly = false;
 
   void _resetFilters() {
     setState(() {
-      selectedCountries = [];
+      selectedCountry = null;
       selectedMainTags = [];
       selectedSubTags = [];
       expandedTags.clear();
@@ -30,17 +35,21 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
   }
 
   void _applyFilters() {
+    // Flatten main+sub tags into a single Set<String>
+    final selected = <String>{...selectedMainTags, ...selectedSubTags};
+
+    // ✅ Dispatch new Bloc event that matches backend spec
     widget.searchBloc.add(
-      SearchFiltersChanged(
-        countries: selectedCountries,
-        mainTags: selectedMainTags,
-        subTags: selectedSubTags,
-        isFoundersOnly: isFoundersOnly,
+      ApplyFilters(
+        country: (selectedCountry == null || selectedCountry!.trim().isEmpty)
+            ? null
+            : selectedCountry!.trim(),
+        selectedTags: selected,
       ),
     );
+
     Navigator.pop(context);
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -74,6 +83,8 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                 ],
               ),
               const SizedBox(height: 24),
+
+              // Country
               const Text('Страна', style: _sectionTextStyle),
               const SizedBox(height: 13),
               GestureDetector(
@@ -89,8 +100,14 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                     children: [
                       Expanded(
                         child: Text(
-                          selectedCountries.isEmpty ? 'Выберите' : selectedCountries.join(', '),
-                          style: const TextStyle(color: Color(0xFFDFDFDF), fontSize: 14, fontFamily: 'InriaSans'),
+                          (selectedCountry == null || selectedCountry!.isEmpty)
+                              ? 'Выберите'
+                              : selectedCountry!,
+                          style: const TextStyle(
+                            color: Color(0xFFDFDFDF),
+                            fontSize: 14,
+                            fontFamily: 'InriaSans',
+                          ),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
@@ -100,19 +117,23 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                 ),
               ),
               const SizedBox(height: 30),
+
+              // Tags (main + sub)
               const Text('Сфера деятельности', style: _sectionTextStyle),
               const SizedBox(height: 10),
               ...tagSubTags.entries.map((entry) {
                 final tag = entry.key;
                 final subTags = entry.value;
+                final expanded = expandedTags.contains(tag);
+
                 return Padding(
-                  padding: const EdgeInsets.only(bottom: 0), 
+                  padding: const EdgeInsets.only(bottom: 0),
                   child: Theme(
                     data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
                     child: ExpansionTile(
-                      onExpansionChanged: (expanded) {
+                      onExpansionChanged: (isOpen) {
                         setState(() {
-                          if (expanded) {
+                          if (isOpen) {
                             expandedTags.add(tag);
                           } else {
                             expandedTags.remove(tag);
@@ -127,16 +148,14 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                       title: Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Padding(
-                            padding: const EdgeInsets.only(left: 10),
-                            child: AnimatedRotation(
-                              turns: expandedTags.contains(tag) ? 0.75 : 0.5,
-                              duration: const Duration(milliseconds: 200),
-                              child: const Icon(
-                                Icons.arrow_back_ios_new,
-                                size: 20,
-                                color: Colors.white,
-                              ),
+                          const SizedBox(width: 10),
+                          AnimatedRotation(
+                            turns: expanded ? 0.75 : 0.5,
+                            duration: const Duration(milliseconds: 200),
+                            child: const Icon(
+                              Icons.arrow_back_ios_new,
+                              size: 20,
+                              color: Colors.white,
                             ),
                           ),
                           const SizedBox(width: 8),
@@ -146,39 +165,52 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                             child: _buildCheckbox(
                               isChecked: selectedMainTags.contains(tag),
                               onChanged: () => setState(() {
-                                selectedMainTags.contains(tag)
-                                    ? selectedMainTags.remove(tag)
-                                    : selectedMainTags.add(tag);
+                                if (selectedMainTags.contains(tag)) {
+                                  selectedMainTags.remove(tag);
+                                } else {
+                                  selectedMainTags.add(tag);
+                                }
                               }),
                             ),
                           ),
                         ],
                       ),
-                      children: subTags.map((subTag) {
-                        return Padding(
-                          padding: const EdgeInsets.only(top: 15, left: 40, bottom: 15, right: 32),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Expanded(child: Text(subTag, style: _tagTextStyle)),
-                              _buildCheckbox(
-                                isChecked: selectedSubTags.contains(subTag),
-                                onChanged: () => setState(() {
-                                  selectedSubTags.contains(subTag)
-                                      ? selectedSubTags.remove(subTag)
-                                      : selectedSubTags.add(subTag);
-                                }),
-                              ),
-                            ],
+                      children: [
+                        for (final subTag in subTags)
+                          Padding(
+                            padding: const EdgeInsets.only(
+                              top: 15,
+                              left: 40,
+                              bottom: 15,
+                              right: 32,
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Expanded(child: Text(subTag, style: _tagTextStyle)),
+                                _buildCheckbox(
+                                  isChecked: selectedSubTags.contains(subTag),
+                                  onChanged: () => setState(() {
+                                    if (selectedSubTags.contains(subTag)) {
+                                      selectedSubTags.remove(subTag);
+                                    } else {
+                                      selectedSubTags.add(subTag);
+                                    }
+                                  }),
+                                ),
+                              ],
+                            ),
                           ),
-                        );
-                      }).toList(),
+                      ],
                     ),
                   ),
                 );
-              }).toList(),
+              }),
+
               const SizedBox(height: 24),
+
+              // Founders-only (no backend filter right now)
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -190,7 +222,10 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                   ),
                 ],
               ),
+
               const SizedBox(height: 12),
+
+              // Apply button
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -204,7 +239,11 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                   ),
                   child: const Text(
                     'Применить',
-                    style: TextStyle(color: Colors.black, fontSize: 16, fontFamily: 'InriaSans'),
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 16,
+                      fontFamily: 'InriaSans',
+                    ),
                   ),
                 ),
               ),
@@ -256,10 +295,11 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
       ),
       onSelect: (Country country) {
         setState(() {
-          if (!selectedCountries.contains(country.name)) {
-            selectedCountries.add(country.name);
+          // ✅ Single select
+          if (selectedCountry == country.name) {
+            selectedCountry = null; // toggle off
           } else {
-            selectedCountries.remove(country.name);
+            selectedCountry = country.name;
           }
         });
       },

@@ -35,57 +35,35 @@ class ProfileApiService {
     debugPrint('✅ Update response status: ${response.statusCode}');
   }
 
-  Future<void> updateProfile(ProfileModel profile) async {
-    final token = await _storage.read(key: 'auth_token');
+Future<void> updateProfile(ProfileModel profile) async {
+  final token = await _storage.read(key: 'auth_token');
 
-    final Map<String, dynamic> body = {
-      "id": profile.id,
-      "fio": profile.name.trim(),
-      "email": (profile.email ?? '').trim(),
-      "info": (profile.bio ?? '').trim(),
-      "companyName": (profile.companyName ?? '').trim(),
-      "companyIndustry": (profile.industry ?? '').trim(),
-      "companyInfo": (profile.companyInfo ?? '').trim(),
-      "userPhone": (profile.phone ?? '').trim(),
-      // لو هتضيف country/tags هنا بعد موافقة الباك إند:
-      // "country": profile.country,
-      // "tags": profile.tags,
-    };
+  final body = <String, dynamic>{
+    if (profile.id != null) 'id': profile.id,                  // required by spec
+    if ((profile.name).trim().isNotEmpty) 'fio': profile.name.trim(),
+    if ((profile.email ?? '').trim().isNotEmpty) 'email': profile.email!.trim(),
+    if ((profile.bio ?? '').trim().isNotEmpty) 'info': profile.bio!.trim(),
+    if ((profile.country ?? '').trim().isNotEmpty) 'country': profile.country!.trim(),
+    if ((profile.tags ?? const []).isNotEmpty) 'tags': profile.tags, // List<String>
+    if ((profile.companyName ?? '').trim().isNotEmpty) 'companyName': profile.companyName!.trim(),
+    if ((profile.industry ?? '').trim().isNotEmpty) 'companyIndustry': profile.industry!.trim(),
+    if ((profile.companyInfo ?? '').trim().isNotEmpty) 'companyInfo': profile.companyInfo!.trim(),
+  };
 
-    // 🧹 امسح الفاضي
-    body.removeWhere((k, v) => v == null || (v is String && v.isEmpty));
+  final auth = (token ?? '').isEmpty
+      ? null
+      : (token!.toLowerCase().startsWith('bearer ') ? token : 'Bearer $token');
 
-    // Authorization header
-    String? authHeader = token;
-    if (authHeader != null &&
-        authHeader.isNotEmpty &&
-        !authHeader.toLowerCase().startsWith('bearer ')) {
-      authHeader = 'Bearer $authHeader';
-    }
-
-    try {
-      debugPrint('🛠️ [PUT] /users/update\nBody: $body');
-      final response = await _dio.put(
-        '/users/update',
-        data: body,
-        options: Options(
-          headers: {
-            if (authHeader != null && authHeader.isNotEmpty)
-              'Authorization': authHeader,
-            'Content-Type': 'application/json',
-          },
-        ),
-      );
-      debugPrint('✅ Update response status: ${response.statusCode}');
-      debugPrint('✅ Update response data: ${response.data}');
-    } on DioException catch (e) {
-      debugPrint('❌ DioException: ${e.message}');
-      debugPrint('❌ Status: ${e.response?.statusCode}');
-      debugPrint('❌ Response data: ${e.response?.data}');
-      rethrow;
-    } catch (e) {
-      debugPrint('❌ Unknown error: $e');
-      rethrow;
-    }
-  }
+  debugPrint('🛠️ [PUT] /users/update  Body: $body');
+  final res = await _dio.put(
+    '/users/update', // assumes baseUrl has /api
+    data: body,
+    options: Options(headers: {
+      if (auth != null) 'Authorization': auth,
+      'Content-Type': 'application/json',
+    }),
+  );
+  debugPrint('✅ Update status: ${res.statusCode}');
+  debugPrint('✅ Update data: ${res.data}');
+}
 }

@@ -17,42 +17,9 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     on<ClearFilters>(_onClearFilters);
   }
 
-  // ------------------ Helpers ------------------
+  // ---------- Helpers ----------
 
-  /// يجرب أكتر من ترميز لـ tags علشان نتفادى 400 من السيرفر
-  Future<List<UserShort>> _searchWithFallbacks({
-    String? query,
-    String? country,
-    List<String>? tags,
-    int cursor = 0,
-    int limit = 50,
-  }) async {
-    Object? lastError;
-
-    for (final enc in const ['csv', 'array', 'brackets']) {
-      try {
-        final res = await apiService.searchUsers(
-          query: query,
-          country: country, // ممكن تبقى null → الـ service هيحط default
-          tags: tags, // ممكن تبقى [] → الـ service هيحط default
-          cursor: cursor,
-          limit: limit,
-          tagsEncoding: enc, // جرّب ترميزات مختلفة
-          // تقدر تغيّر الافتراضيات هنا لو الباك إند طلب قيم حقيقية
-          defaultCountry: 'ALL',
-          defaultTags: const ['ALL'],
-        );
-        return res;
-      } catch (e) {
-        lastError = e;
-        // جرّب encoding تاني
-      }
-    }
-
-    // لو كل المحاولات فشلت
-    throw lastError ?? Exception('Unknown search error');
-  }
-
+  /// Map the API "short" user to your UI profile model.
   UserProfile _mapShortToProfile(UserShort u) {
     return UserProfile(
       id: u.id,
@@ -65,7 +32,30 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     );
   }
 
-  // ------------------ Event handlers ------------------
+  /// Single, spec-accurate search call (GET /api/users/?cursor&limit&fio?&country?&tags?[])
+  Future<List<UserShort>> _search({
+    String? query,
+    String? country,
+    List<String>? tags,
+    int cursor = 0,
+    int limit = 50,
+  }) {
+    return apiService.searchUsers(
+      query: (query ?? '').trim().isEmpty ? null : query!.trim(), // maps to `fio`
+      country: (country ?? '').trim().isEmpty ? null : country!.trim(),
+      tags: (tags ?? []).where((t) => t.trim().isNotEmpty).toList(), // sent as tags[]=...
+      cursor: cursor,
+      limit: limit,
+    );
+  }
+
+  String _humanizeError(Object e) {
+    if (e is! Exception) return 'Unexpected error, please try again.';
+    // Keep it short for UI; Dio errors are already logged inside the service.
+    return 'An error occurred in the search. Check the filters and try again.';
+  }
+
+  // ---------- Event handlers ----------
 
   Future<void> _onLoadInitial(
     LoadInitialProfiles event,
@@ -73,12 +63,13 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
   ) async {
     emit(state.copyWith(isLoading: true, error: null));
     try {
-      final results = await _searchWithFallbacks(cursor: 0, limit: 50);
+      final results = await _search(cursor: 0, limit: 50);
       final profiles = results.map(_mapShortToProfile).toList();
       emit(state.copyWith(isLoading: false, profiles: profiles));
+      // Populate tags for the filter UI (best-effort)
       add(const LoadAvailableTags());
     } catch (e) {
-      emit(state.copyWith(isLoading: false, error: e.toString()));
+      emit(state.copyWith(isLoading: false, error: _humanizeError(e)));
     }
   }
 
@@ -86,11 +77,12 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     LoadAvailableTags event,
     Emitter<SearchState> emit,
   ) async {
-    // best-effort: لو فشل ما نوقفش الـ UI
     try {
-      final tags = await apiService.getAvailableTags();
+      final tags = await apiService.getAvailableTags(); // returns List<TagItem>
       emit(state.copyWith(availableTags: tags));
-    } catch (_) {}
+    } catch (_) {
+      // ignore tag errors; don’t block the page
+    }
   }
 
   Future<void> _onQueryChanged(
@@ -99,7 +91,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
   ) async {
     emit(state.copyWith(isLoading: true, query: event.query, error: null));
     try {
-      final results = await _searchWithFallbacks(
+      final results = await _search(
         query: event.query,
         country: state.country,
         tags: state.selectedTags.toList(),
@@ -113,7 +105,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
         ),
       );
     } catch (e) {
-      emit(state.copyWith(isLoading: false, error: e.toString()));
+      emit(state.copyWith(isLoading: false, error: _humanizeError(e)));
     }
   }
 
@@ -121,9 +113,8 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     ApplyFilters event,
     Emitter<SearchState> emit,
   ) async {
-    final normalizedCountry = (event.country?.isEmpty ?? true)
-        ? null
-        : event.country;
+    final normalizedCountry =
+        (event.country?.trim().isEmpty ?? true) ? null : event.country!.trim();
 
     emit(
       state.copyWith(
@@ -135,7 +126,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     );
 
     try {
-      final results = await _searchWithFallbacks(
+      final results = await _search(
         query: state.query,
         country: normalizedCountry,
         tags: event.selectedTags.toList(),
@@ -149,14 +140,15 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
         ),
       );
     } catch (e) {
-      emit(state.copyWith(isLoading: false, error: e.toString()));
+      emit(state.copyWith(isLoading: false, error: _humanizeError(e)));
     }
   }
 
   void _onClearFilters(ClearFilters event, Emitter<SearchState> emit) {
-    // امسح محليًا أولًا
-    emit(state.copyWith(country: null, selectedTags: const {}));
-    // ثم اعمل بحث من غير فلاتر (هيتحط defaults في الـ service)
-    add(SearchQueryChanged(state.query));
+    // Clear locally…
+    final cleared = state.copyWith(country: null, selectedTags: const {});
+    emit(cleared);
+    // …then re-run search with no filters
+    add(SearchQueryChanged(cleared.query));
   }
 }
