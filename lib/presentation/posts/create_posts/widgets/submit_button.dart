@@ -9,25 +9,7 @@ class SubmitButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<CreatePostBloc, CreatePostState>(
-      listener: (context, state) {
-        if (state.isSuccess) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Запрос успешно отправлен ✅'),
-              backgroundColor: Colors.green,
-            ),
-          );
-          Navigator.pop(context, 'refresh');
-        } else if (state.isFailure) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Пожалуйста, заполните все поля ✏️'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
-      },
+    return BlocBuilder<CreatePostBloc, CreatePostState>(
       builder: (context, state) {
         return Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -45,6 +27,7 @@ class SubmitButton extends StatelessWidget {
                 onPressed: state.isSubmitting
                     ? null
                     : () {
+                        // إرسال الحدث فقط — التنقل يتم في BlocListener بالصفحة
                         context.read<CreatePostBloc>().add(SubmitPost());
                       },
                 child: state.isSubmitting

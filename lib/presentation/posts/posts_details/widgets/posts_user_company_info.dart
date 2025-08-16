@@ -1,34 +1,69 @@
-  import 'package:flutter/material.dart';
-  import 'posts_description_card.dart';
+import 'package:flutter/material.dart';
+import 'posts_description_card.dart';
 
-  class PostUserCompanyInfo extends StatelessWidget {
-    const PostUserCompanyInfo({super.key});
+class PostUserCompanyInfo extends StatelessWidget {
+  final String userInfo; // نبذة المستخدم
+  final String companyName; // اسم الشركة (اختياري)
+  final String companyInfo; // نبذة الشركة (اختياري)
 
-    @override
-    Widget build(BuildContext context) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: const [
-          Text(
+  const PostUserCompanyInfo({
+    super.key,
+    required this.userInfo,
+    required this.companyName,
+    required this.companyInfo,
+  });
+
+  bool _hasText(String s) => s.trim().isNotEmpty;
+
+  @override
+  Widget build(BuildContext context) {
+    final hasUserInfo = _hasText(userInfo);
+    final hasCompanyInfo = _hasText(companyInfo);
+    final hasCompanyName = _hasText(companyName);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (hasUserInfo) ...[
+          const Text(
             'Информация о пользователе',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontFamily: 'InriaSans'),
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w600,
+              fontFamily: 'InriaSans',
+            ),
           ),
-          SizedBox(height: 8),
-          PostDescriptionCard(
-            description:
-                'Меня зовут Итан Монтгомери, я основатель и владелец компании "ScaleUp Solutions". Я начал свой путь в IT-сфере более 12 лет назад, работая над проектами в области цифровой трансформации. Сейчас это был небольшой проект с командой единомышленников, но благодаря упорству и предпринимательскому подходу вывел компанию с десятками успешных кейсов.',
-          ),
-          SizedBox(height: 16),
-          Text(
-            'Информация о компании',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontFamily: 'InriaSans'),
-          ),
-          SizedBox(height: 8),
-          PostDescriptionCard(
-            description:
-                'ScaleUp Solutions — это крупнейшая инновационная компания, специализирующаяся на масштабировании бизнеса через e-commerce-решения и развитие D2C-моделей. Мы предлагаем стратегические и технологические решения для быстрого роста, снижения издержек и масштабирования за счёт современных технологических решений.',
-          ),
+          const SizedBox(height: 8),
+          PostDescriptionCard(description: userInfo),
+          const SizedBox(height: 16),
         ],
-      );
-    }
+
+        if (hasCompanyInfo || hasCompanyName) ...[
+          const Text(
+            'Информация о компании',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w600,
+              fontFamily: 'InriaSans',
+            ),
+          ),
+          const SizedBox(height: 8),
+          if (hasCompanyName)
+            Container(
+              margin: const EdgeInsets.only(bottom: 8),
+              child: Text(
+                companyName,
+                style: const TextStyle(
+                  color: Color(0xFFAF925D),
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  fontFamily: 'InriaSans',
+                ),
+              ),
+            ),
+          if (hasCompanyInfo) PostDescriptionCard(description: companyInfo),
+        ],
+      ],
+    );
   }
+}

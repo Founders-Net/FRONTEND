@@ -14,26 +14,25 @@ class PostsState extends Equatable {
     required this.hasMore,
   });
 
-  factory PostsState.initial() => const PostsState(
-        posts: [],
-        isLoading: false,
-        error: null,
-        hasMore: true,
-      );
+  factory PostsState.initial() =>
+      const PostsState(posts: [], isLoading: false, error: null, hasMore: true);
 
+  // ✅ copyWith يدعم مسح error لما نمرر null
   PostsState copyWith({
     List<PostModel>? posts,
     bool? isLoading,
-    String? error,
+    Object? error = _sentinel,
     bool? hasMore,
   }) {
     return PostsState(
       posts: posts ?? this.posts,
       isLoading: isLoading ?? this.isLoading,
-      error: error ?? this.error,
+      error: identical(error, _sentinel) ? this.error : error as String?,
       hasMore: hasMore ?? this.hasMore,
     );
   }
+
+  static const Object _sentinel = Object();
 
   @override
   List<Object?> get props => [posts, isLoading, error, hasMore];

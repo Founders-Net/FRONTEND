@@ -1,6 +1,7 @@
 // lib/presentation/posts/models/post_model.dart
 class PostModel {
-  final int id;
+  final int id;              // post id
+  final int userId;          // ✅ NEW: owner user id
   final String userName;
   final String companyName;
   final String content;
@@ -10,6 +11,7 @@ class PostModel {
 
   PostModel({
     required this.id,
+    required this.userId,     // ✅ NEW
     required this.userName,
     required this.companyName,
     required this.content,
@@ -21,6 +23,7 @@ class PostModel {
   factory PostModel.fromJson(Map<String, dynamic> json) {
     return PostModel(
       id: json['id'],
+      userId: json['userId'] ?? json['authorId'] ?? 0, // ✅ maps userId/authorId if backend differs
       userName: json['userName'] ?? '',
       companyName: json['companyName'] ?? '',
       content: json['content'] ?? '',

@@ -35,21 +35,28 @@ class HomeTabBarPage extends StatelessWidget {
               SharedAppBar(
                 onCreatePressed: () async {
                   final tabIndex = tabIndexNotifier.value;
+
                   if (tabIndex == 0) {
                     final result = await Navigator.push(
                       context,
                       MaterialPageRoute(builder: (_) => const CreatePostPage()),
                     );
+
+                    // ✅ مهم: نتأكد إن الـ context لسه صالح قبل استخدامه
+                    if (!context.mounted) return;
+
                     if (result == 'refresh') {
                       context.read<PostsBloc>().add(const LoadPostsEvent());
                     }
                   } else {
-                    Navigator.push(
+                    // ✅ خليه await لنفس سلوك الفرع الأول (اختياري لكنه أنظف)
+                    await Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (_) => BlocProvider(
-                          create: (_) => CreateInvestmentBloc(  investmentApiService: InvestmentApiService(),
-),
+                          create: (_) => CreateInvestmentBloc(
+                            investmentApiService: InvestmentApiService(),
+                          ),
                           child: const CreateInvestmentPage(),
                         ),
                       ),
@@ -57,6 +64,7 @@ class HomeTabBarPage extends StatelessWidget {
                   }
                 },
               ),
+
               const TabBar(
                 indicator: UnderlineTabIndicator(
                   borderSide: BorderSide(width: 2, color: Colors.white),
@@ -126,14 +134,14 @@ class HomeTabBarPage extends StatelessWidget {
                   children: [
                     Column(
                       children: [
-                        SizedBox(height: 12), 
+                        SizedBox(height: 12),
                         Expanded(child: PostsPage()),
                       ],
                     ),
 
                     Column(
                       children: [
-                        SizedBox(height: 12), 
+                        SizedBox(height: 12),
                         Expanded(child: InvestmentPage()),
                       ],
                     ),

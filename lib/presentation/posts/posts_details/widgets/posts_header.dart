@@ -16,14 +16,23 @@ class PostHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    ImageProvider? imageProvider;
+    if (avatarUrl != null && avatarUrl!.trim().isNotEmpty) {
+      if (avatarUrl!.startsWith('http')) {
+        imageProvider = NetworkImage(avatarUrl!);
+      } else {
+        imageProvider = AssetImage(avatarUrl!);
+      }
+    }
+
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.center, 
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         CircleAvatar(
           radius: 45,
-          backgroundImage: avatarUrl != null ? AssetImage(avatarUrl!) : null,
+          backgroundImage: imageProvider,
           backgroundColor: Colors.white10,
-          child: avatarUrl == null
+          child: imageProvider == null
               ? const Icon(Icons.person, color: Colors.white)
               : null,
         ),
@@ -32,8 +41,7 @@ class PostHeader extends StatelessWidget {
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize:
-                MainAxisSize.min, 
+            mainAxisSize: MainAxisSize.min,
             children: [
               Text(
                 name,
@@ -63,7 +71,11 @@ class PostHeader extends StatelessWidget {
           children: [
             Text(
               time,
-              style: const TextStyle(fontSize: 12, color: Colors.white70, fontFamily: 'InriaSans'),
+              style: const TextStyle(
+                fontSize: 12,
+                color: Colors.white70,
+                fontFamily: 'InriaSans',
+              ),
             ),
           ],
         ),

@@ -8,8 +8,6 @@ import 'package:flutter_founders/presentation/posts/create_posts/widgets/submit_
 import 'package:flutter_founders/presentation/posts/create_posts/widgets/tag_selector.dart';
 import 'package:flutter_founders/presentation/posts/create_posts/widgets/title_field.dart';
 import 'package:flutter_founders/presentation/posts/create_posts/widgets/additional_field.dart';
-import 'package:flutter_founders/presentation/posts/bloc/posts_bloc.dart';
-import 'package:flutter_founders/presentation/posts/bloc/posts_event.dart';
 
 class CreatePostPage extends StatelessWidget {
   const CreatePostPage({super.key});
@@ -37,26 +35,21 @@ class CreatePostPage extends StatelessWidget {
           ),
         ),
         body: BlocListener<CreatePostBloc, CreatePostState>(
-          listener: (context, state) {
+          listener: (context, state) async {
             if (state.isSuccess) {
-              // ✅ عرض رسالة نجاح
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text("Пост успешно создан ✅"), // ← بالروسي
-                ),
+                const SnackBar(content: Text('Пост успешно создан ✅')),
               );
-
-              // ✅ إعادة تحميل البوستات
-              context.read<PostsBloc>().add(const LoadPostsEvent());
-
-              // ✅ الرجوع تلقائيًا
-              Navigator.pop(context);
+              if (!context.mounted) return; // لمنع أي استثناء قبل الرجوع
+              Navigator.pop(context, 'refresh'); // الرجوع مع إشارة للتحديث
             }
 
             if (state.isFailure) {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text("Не удалось создать пост ❌"), // ← بالروسي
+                SnackBar(
+                  content: Text(
+                    state.errorMessage ?? 'Не удалось создать пост ❌',
+                  ),
                 ),
               );
             }
@@ -72,11 +65,12 @@ class CreatePostPage extends StatelessWidget {
                     SizedBox(height: 20),
                     DescriptionField(),
                     SizedBox(height: 20),
-                    TagSelector(availableTags: []),
+                    // مؤقتًا: قائمة وسوم غير فاضية لحد ما تربطها من الـ API
+                    TagSelector(availableTags: ['API', 'Tech', 'Design', 'Finance']),
                     SizedBox(height: 20),
                     AdditionalField(),
                     SizedBox(height: 32),
-                    SubmitButton(),
+                    SubmitButton(), // الزر لا يقوم بأي تنقل — التنقل هنا فقط
                   ],
                 ),
               ),
